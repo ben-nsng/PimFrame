@@ -8,6 +8,7 @@ class IoC_Database {
 	private $pdo;
 	private $is_trans;
 	private $trans_err;
+	private $trans_count;
 
 	public function __construct($config) {
 		$this->conn_str = $config['dbdriver'] . ':host=' . $config['hostname'] . ';dbname=' . $config['database'];
@@ -17,6 +18,7 @@ class IoC_Database {
 		// transaction flag
 		$this->is_trans = false;
 		$this->trans_err = false;
+		$this->trans_count = 0;
 	}
 
 	public function load() {
@@ -28,24 +30,45 @@ class IoC_Database {
 		}
 	}
 
+	//**
+	//** smart transaction engine
+	//** rollback will be called automatically
+	//** use trans_start and trans_end if the scope need transaction
+	//**
+
 	public function trans_start() {
+		//not allow if the transaction is started
+		$this->trans_count++;
+		if($this->is_trans) return;
+
+		//set the flag to begin transaction
 		$this->is_trans = true;
 		$this->pdo->beginTransaction();
 	}
 
 	public function trans_end() {
+		//not allow if the scope is not in transaction
 		if(!$this->is_trans) return;
-		$this->is_trans = false;
 		if($this->trans_err) {
+			//if rollback was called, rollback the transaction and reset flag
 			$this->pdo->rollback();
+			$this->is_trans = false;
 			$this->trans_err = false;
+			$this->trans_count = 0;
 			return;
 		}
-		$this->pdo->commit();
+		if(--$this->trans_count == 0) {
+			//no transaction scope, commit the transaction
+			$this->is_trans = false;
+			return $this->pdo->commit();
+		}
+		return true;
 	}
 
 	public function rollback() {
+		//not allow if the scope is not in transaction
 		if(!$this->is_trans) return;
+		//transaction has error, rollback transaction in next trans_end
 		$this->trans_err = true;
 	}
 
@@ -108,7 +131,7 @@ class IoC_Database {
 			return $GLOBALS['container']['database_statement']->query($sql, $placeholders);
 		}
 		catch (PDOException $e) {
-			$this->debug->trace();
+			//$this->debug->trace();
 			$this->rollback();
 			return null;
 		}
