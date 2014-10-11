@@ -18,7 +18,7 @@ class UserController {
 
   public function login_post() {
     return $this->UserModel->login(
-      $this->request->pass('login'),
+      $this->request->post('login'),
       $this->request->post('pass')
     );
   }
@@ -71,7 +71,7 @@ $result = $apps->run('user/generic');
 RESTful API Call
 ------
 
-Output will be a json format.
+Output will be in json format.
 
 POST: /user/login
 ```
