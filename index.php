@@ -17,6 +17,4 @@ switch(ENVIRONMENT) {
 
 require 'application/core/apps.php';
 
-$apps = new Apps;
-
 if(!GET_INCLUDED) echo $apps->run();

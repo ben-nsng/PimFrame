@@ -1,16 +1,22 @@
 <?php
 
 require BASE_DIR . '/vendor/autoload.php';
-
 require BASE_DIR . '/application/core/autoload.php';
-require BASE_DIR . '/application/core/IoC.php';
+//require BASE_DIR . '/application/core/IoC.php';
 
 class Apps {
 
-	private $request;
+	private $container;
 
-	public function __construct() {
-		$this->request = $GLOBALS['container']['request'];
+	public function __construct($container) {
+		//container
+		$this->container = $container;
+
+		//require IoC
+		require BASE_DIR . '/application/core/IoC.php';
+
+		//buffering output
+		ob_start(array($this, "output"));
 	}
 
 	public function run($route = '') {
@@ -26,7 +32,7 @@ class Apps {
 		if (!class_exists($controller_name)) return $this->error_404();
 
 		//create controller instance
-		$controller = $GLOBALS['container']['controller'];
+		$controller = $this->container['controller'];
 		$controller->set_controller($controller_name);
 
 		//get method and action name
@@ -55,4 +61,22 @@ class Apps {
 		$json = array('error' => 'The page does not exist!');
 		return json_encode($json);
 	}
+
+	private function output($buffer) {
+		return $this->LangModel->process_translation($buffer);
+	}
+
+	public function __destruct() {
+		ob_end_flush();
+	}
 }
+
+//create global apps
+use Pimple\Container;
+$container = new Container();
+
+$container['apps'] = function($c) {
+	return new Apps($c);
+};
+
+$apps = $container['apps'];

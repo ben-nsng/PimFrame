@@ -9,7 +9,8 @@ class IoC_Request {
 	private $parsed;
 
 	public function __construct() {
-		$this->verb = $_SERVER['REQUEST_METHOD'];
+		if(isset($_SERVER['REQUEST_METHOD']))
+			$this->verb = $_SERVER['REQUEST_METHOD'];
 		$this->parsed = false;
 
 		$this->parseIncomingParams();
@@ -18,6 +19,23 @@ class IoC_Request {
 		if(isset($this->parameters['format'])) {
 			$this->format = $this->parameters['format'];
 		}
+	}
+
+	public function clear() {
+		$this->gets = array();
+		$this->posts = array();
+	}
+
+	public function set_get($key, $val) {
+		$this->gets[$key] = $val;
+	}
+
+	public function set_post($key, $val) {
+		$this->posts[$key] = $val;
+	}
+
+	public function set_verb($verb) {
+		$this->verb = $verb;
 	}
 
 	public function set_pathinfo($path_info = '') {

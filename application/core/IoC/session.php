@@ -2,10 +2,7 @@
 
 class IoC_Session {
 
-	private $c;
-
-	public function __construct($container) {
-		$this->c = $container;
+	public function __construct() {
 	}
 
 	public function load() {

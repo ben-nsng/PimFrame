@@ -2,10 +2,7 @@
 
 class IoC_Debug {
 
-	private $c;
-
-	public function __construct($container) {
-		$this->c = $container;
+	public function __construct() {
 	}
 
 	public function trace() {
