@@ -27,6 +27,7 @@ class IoC_Database {
 			$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$this->execute('SET NAMES UTF8');
 			$this->execute('SET SESSION group_concat_max_len = 100000');
+			$this->execute('SET time_zone = "+08:00";');
 		}
 	}
 
@@ -49,20 +50,20 @@ class IoC_Database {
 	public function trans_end() {
 		//not allow if the scope is not in transaction
 		if(!$this->is_trans) return;
-		if($this->trans_err) {
-			//if rollback was called, rollback the transaction and reset flag
-			$this->pdo->rollback();
-			$this->is_trans = false;
-			$this->trans_err = false;
-			$this->trans_count = 0;
-			return;
-		}
 		if(--$this->trans_count == 0) {
+			if($this->trans_err) {
+				//if rollback was called, rollback the transaction and reset flag
+				$this->pdo->rollback();
+				$this->is_trans = false;
+				$this->trans_err = false;
+				$this->trans_count = 0;
+				return;
+			}
+		
 			//no transaction scope, commit the transaction
 			$this->is_trans = false;
 			return $this->pdo->commit();
 		}
-		return true;
 	}
 
 	public function rollback() {
@@ -128,10 +129,10 @@ class IoC_Database {
 
 	public function execute($sql, $placeholders = array()) {
 		try {
+			if($this->is_trans && $this->trans_err) return null;
 			return $GLOBALS['container']['database_statement']->query($sql, $placeholders);
 		}
 		catch (PDOException $e) {
-			//$this->debug->trace();
 			$this->rollback();
 			return null;
 		}
@@ -182,3 +183,4 @@ class IoC_Database_Statement {
 	}
 
 }
+
