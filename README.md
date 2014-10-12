@@ -83,10 +83,80 @@ GET: /user/generic
 "generic"
 ```
 
-Advance Usage
+Database
 ------
 
 ```
-$apps->database->onetomany('student', 'course');
+$apps->database->onetomany('student', 'course');  #return all the students with all courses taking by students
+/*
+structure returned:
+array(
+ [0] =>
+ array(
+   "student_id" => 1,
+   "other_field" => ...,
+   "course" => array(
+     [0] =>
+     array(
+       "course_id" => 1,
+       "other_field" => ...,
+     ),
+     [1] =>
+     array(
+       ...
+     )
+   )
+ ),
+ [1] =>
+ array(
+   ...
+ )
+)
+*/
+$apps->database->onetomany('student', 'course', 'student_id=3'); #return a stduent with id=3 with all courses taking by that student
+```
+
+Security
+------
+
+```
 $apps->security->hash('password');
+```
+
+Session
+------
+
+```
+$apps->session->set('key', '12345');
+$apps->session->get('key');
+$apps->session->remove('key');
+```
+
+Request
+------
+
+```
+$apps->request->get(); #return all gets
+$apps->request->post(); #return all posts
+$apps->request->get('key'); #return $_GET['key'] or false if no value
+$apps->request->post('key'); #return $_POST['key'] or false if no value
+```
+
+Debug
+------
+
+```
+$apps->debug->trace();
+```
+
+Config
+------
+
+```
+```
+
+i18n
+------
+
+```
 ```
