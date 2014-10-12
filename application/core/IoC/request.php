@@ -4,38 +4,69 @@ class IoC_Request {
 
 	public $url_elements;
 	public $verb;
-	private $gets = array();
-	private $posts = array();
+	private $verbs = array('get', 'post', 'put', 'delete');
 	private $parsed;
 
 	public function __construct() {
+		// get verb
 		if(isset($_SERVER['REQUEST_METHOD']))
-			$this->verb = $_SERVER['REQUEST_METHOD'];
+			$this->verb = strtolower($_SERVER['REQUEST_METHOD']);
+
+		// set flag
 		$this->parsed = false;
 
-		$this->parseIncomingParams();
+		// parse params
+		$this->parse_incoming_params();
+
 		// initialise json as default format
 		$this->format = 'json';
 		if(isset($this->parameters['format'])) {
 			$this->format = $this->parameters['format'];
 		}
+
+		// initialize params array
+		$this->clear();
 	}
 
 	public function clear() {
-		$this->gets = array();
-		$this->posts = array();
-	}
-
-	public function set_get($key, $val) {
-		$this->gets[$key] = $val;
-	}
-
-	public function set_post($key, $val) {
-		$this->posts[$key] = $val;
+		foreach($this->verbs as $verb) {
+			$verb .= 's';
+			$this->$verb = array();
+		}
 	}
 
 	public function set_verb($verb) {
-		$this->verb = $verb;
+		$this->verb = strtolower($verb);
+	}
+
+	//setter
+	private function _set_verb($verb, $key, $val) {
+		$verb .= 's';
+		$this->{$verb}[$key] = $val;
+	}
+
+	//getter
+	private function _verb($verb, $key) {
+		$verb .= 's';
+		if($key == '') return $this->$verb;
+		$verb_arr = $this->$verb;
+		if(!isset($verb_arr[$key])) return false;
+		return $verb_arr[$key];
+	}
+
+	public function __call($method_name, $args) {
+		$method_name = strtolower($method_name);
+		if(in_array($method_name, $this->verbs)) {
+			array_unshift($args, $method_name);
+			return call_user_func_array(array($this, '_verb'), $args);
+		}
+		else {
+			$parts = explode('_', $method_name);
+			if(count($parts) == 2 && $parts[0] == 'set' && in_array($parts[1], $this->verbs)) {
+				array_unshift($args, $parts[1]);
+				call_user_func_array(array($this, '_set_verb'), $args);
+			}
+		}
 	}
 
 	public function set_pathinfo($path_info = '') {
@@ -46,19 +77,7 @@ class IoC_Request {
 			$this->url_elements = explode('/', $path_info);
 	}
 
-	public function get($key = '') {
-		if($key == '') return $this->gets;
-		if(!isset($this->gets[$key])) return false;
-		return $this->gets[$key];
-	}
-
-	public function post($key = '') {
-		if($key == '') return $this->posts;
-		if(!isset($this->posts[$key])) return false;
-		return $this->posts[$key];
-	}
-
-	private function parseIncomingParams() {
+	private function parse_incoming_params() {
 		$parameters = array();
  
 		// first of all, pull the GET vars
@@ -96,7 +115,9 @@ class IoC_Request {
 				// we could parse other supported formats here
 				break;
 		}
-		$this->posts = $parameters;
+
+		$verb = $this->verb . 's';
+		$this->$verb = $parameters;
 	}
 
 }
