@@ -9,6 +9,7 @@ class IoC_Database {
 	private $is_trans;
 	private $trans_err;
 	private $trans_count;
+	private $sql_paginate;
 
 	public function __construct($config) {
 		$this->conn_str = $config['dbdriver'] . ':host=' . $config['hostname'] . ';dbname=' . $config['database'];
@@ -21,6 +22,12 @@ class IoC_Database {
 		$this->trans_count = 0;
 	}
 
+	public function __destruct() {
+		if($this->trans_err) {
+			//while(!$this->trans_end());
+		}
+	}
+
 	public function load() {
 		if(!isset($this->pdo)) {
 			$this->pdo = new PDO($this->conn_str, $this->usr, $this->pass);
@@ -29,6 +36,19 @@ class IoC_Database {
 			$this->execute('SET SESSION group_concat_max_len = 100000');
 			$this->execute('SET time_zone = "+08:00";');
 		}
+	}
+
+	public function quote($str) {
+		return $this->pdo->quote($str);
+	}
+
+	public function paginate() {
+		$page = intval($this->request->get('page'));
+		$limit = intval($this->request->get('limit'));
+		
+		if($page && $limit)
+			$this->sql_paginate = ' LIMIT ' . $limit * ($page - 1) . ', ' . $limit;
+		return $this;
 	}
 
 	//**
@@ -49,7 +69,7 @@ class IoC_Database {
 
 	public function trans_end() {
 		//not allow if the scope is not in transaction
-		if(!$this->is_trans) return;
+		if(!$this->is_trans) return true;
 		if(--$this->trans_count == 0) {
 			if($this->trans_err) {
 				//if rollback was called, rollback the transaction and reset flag
@@ -57,13 +77,14 @@ class IoC_Database {
 				$this->is_trans = false;
 				$this->trans_err = false;
 				$this->trans_count = 0;
-				return;
+				return false;
 			}
 		
 			//no transaction scope, commit the transaction
 			$this->is_trans = false;
 			return $this->pdo->commit();
 		}
+		return true;
 	}
 
 	public function rollback() {
@@ -130,11 +151,18 @@ class IoC_Database {
 	public function execute($sql, $placeholders = array()) {
 		try {
 			if($this->is_trans && $this->trans_err) return null;
-			return $GLOBALS['container']['database_statement']->query($sql, $placeholders);
+			return $GLOBALS['container']['database_statement']->query($sql . $this->sql_paginate, $placeholders);
 		}
 		catch (PDOException $e) {
+			$this->debug->trace();
+			var_dump($e);
+			var_dump($sql);
+			var_dump($placeholders);
 			$this->rollback();
 			return null;
+		}
+		finally {
+			$this->sql_paginate = '';
 		}
 	}
 
@@ -153,8 +181,13 @@ class IoC_Database_Statement {
 
 	public function query($sql, $placeholders = array()) {
 		$pdo = $this->db->get_pdo();
-		$this->stmt = $pdo->prepare($sql);
-		$this->stmt->execute($placeholders);
+
+		if(count($placeholders) == 0)
+			$this->stmt = $pdo->query($sql);
+		else {
+			$this->stmt = $pdo->prepare($sql);
+			$this->stmt->execute($placeholders);
+		}
 
 		return $this;
 	}
@@ -183,4 +216,3 @@ class IoC_Database_Statement {
 	}
 
 }
-

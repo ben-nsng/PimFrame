@@ -8,6 +8,9 @@ class IoC_Request {
 	private $parsed;
 
 	public function __construct() {
+		// initialize params array
+		$this->clear();
+
 		// get verb
 		if(isset($_SERVER['REQUEST_METHOD']))
 			$this->verb = strtolower($_SERVER['REQUEST_METHOD']);
@@ -23,9 +26,6 @@ class IoC_Request {
 		if(isset($this->parameters['format'])) {
 			$this->format = $this->parameters['format'];
 		}
-
-		// initialize params array
-		$this->clear();
 	}
 
 	public function clear() {
@@ -46,7 +46,7 @@ class IoC_Request {
 	}
 
 	//getter
-	private function _verb($verb, $key) {
+	private function _verb($verb, $key = '') {
 		$verb .= 's';
 		if($key == '') return $this->$verb;
 		$verb_arr = $this->$verb;
@@ -113,11 +113,18 @@ class IoC_Request {
 				break;
 			default:
 				// we could parse other supported formats here
+				if(stripos($content_type, 'multipart/form-data') === 0) {
+					$this->gets = $_GET;
+					$this->posts = $_POST;
+					return;
+				}
 				break;
 		}
 
-		$verb = $this->verb . 's';
-		$this->$verb = $parameters;
+		if($this->verb != 'get') {
+			$verb = $this->verb . 's';
+			$this->$verb = $parameters;
+		}
 	}
 
 }

@@ -11,7 +11,7 @@ class IoC_Controller {
 
 	public function set_controller($controller) {
 		$this->controller = $this->c[$controller];
-		$this->c['service']->add_service($controller);
+		$this->c['service']->add_controller($controller);
 	}
 
 	public function __call($method_name, $args) {

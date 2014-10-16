@@ -46,9 +46,9 @@ class Apps {
 			else $result = $controller->$method_name();
 		else $result = $controller->$action_name();
 
-		if($result === NULL) return '{}';
-		else if(!GET_INCLUDED) return json_encode($result);
-		else return $result;
+		if(GET_INCLUDED) return $result;
+		else if($result === NULL) return '{}';
+		else return json_encode($result);
 
 	}
 

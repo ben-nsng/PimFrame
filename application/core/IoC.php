@@ -87,6 +87,31 @@ $container['security'] = function($c) {
 
 $this->security = $container['security'];
 
+// ** Create Storage ** //
+$container['storage'] = function() {
+	return new IoC_Storage;
+};
+
+$this->storage = $container['storage'];
+
+// ** Create Upload ** //
+$container['upload'] = function() {
+	return new IoC_Upload;
+};
+
+$container['upload_file'] = function() {
+	return new IoC_Upload_File;
+};
+
+$this->upload = $container['upload'];
+
+// ** Create I18n ** //
+$container['i18n'] = function() {
+	return new IoC_I18n;
+};
+
+$this->i18n = $container['i18n'];
+
 // ** PRE-LOADING COMPONENT ** //
 $this->service->add_service('config');
 $this->service->add_service('controller');
@@ -96,9 +121,16 @@ $this->service->add_service('session');
 $this->service->add_service('debug');
 $this->service->add_service('security');
 $this->service->add_service('request');
+$this->service->add_service('storage');
+$this->service->add_service('upload');
+$this->service->add_service('i18n');
 $this->session->load();
 $this->database->load();
 $this->model->load($this, 'UserModel');
 $this->model->load($this, 'NetworkModel');
 $this->model->load($this, 'LangModel');
 $this->model->load($this, 'WorkModel');
+$this->model->load($this, 'SystemModel');
+$this->model->load($this, 'NewsModel');
+$this->model->load($this, 'InvestorModel');
+$this->model->load($this, 'HomeModel');

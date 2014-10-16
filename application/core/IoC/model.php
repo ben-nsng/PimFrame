@@ -10,7 +10,7 @@ class IoC_Model {
 	}
 	
 	public function load($apps, $new_model) {
-		$this->c['service']->add_service($new_model);
+		$this->c['service']->add_model($new_model);
 		$apps->$new_model = $this->c[$new_model];
 	}
 
