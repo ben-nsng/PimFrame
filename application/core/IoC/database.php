@@ -88,6 +88,7 @@ class IoC_Database {
 	}
 
 	public function rollback() {
+		$this->debug->trace();
 		//not allow if the scope is not in transaction
 		if(!$this->is_trans) return;
 		//transaction has error, rollback transaction in next trans_end
@@ -156,6 +157,7 @@ class IoC_Database {
 			$this->debug->log($sql);
 			$this->debug->log($placeholders);
 			$this->rollback();
+			
 			return null;
 		}
 		finally {
@@ -180,6 +182,7 @@ class IoC_Database_Statement {
 		if(count($placeholders) == 0)
 			$this->stmt = $this->pdo->query($sql);
 		else {
+			if(!is_array($placeholders)) $placeholders = array($placeholders);
 			$this->stmt = $this->pdo->prepare($sql);
 			$this->stmt->execute($placeholders);
 		}

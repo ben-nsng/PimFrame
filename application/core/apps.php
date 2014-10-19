@@ -16,7 +16,10 @@ class Apps {
 
 		$self = $this;
 		$this->response->add_parser(function($body) use($self) {
-			$body .= $self->debug->get_message();
+			if(ENVIRONMENT == 'development') {
+				$body .= $self->debug->get_message();
+				return $body;
+			}
 			return $body;
 		});
 		//buffering output
@@ -43,19 +46,19 @@ class Apps {
 		$action_name = $method_name . '_' . strtolower($this->request->verb);
 
 		//pre routing
-		$this->controller->pre_routing();
-
+		$success = true;
 		$result = null;
-		if(method_exists($this->controller, $action_name)) $result = $this->controller->$action_name();
-		else $result = $this->controller->$method_name();
-		
+		if(!($success = $this->controller->pre_routing())) $this->response->error_404();
+
+		if($success !== false) {
+			if(method_exists($this->controller, $action_name)) $result = $this->controller->$action_name();
+			else $result = $this->controller->$method_name();
+		}
+
 		//post routing
 		$this->controller->post_routing();
 
-		if(GET_INCLUDED) return $result;
-		else if($result === NULL) return '{}';
-		else return json_encode($result);
-
+		return $result;
 	}
 
 	private function output($buffer) {
