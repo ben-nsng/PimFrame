@@ -1,8 +1,6 @@
 <?php
 
-//require BASE_DIR . '/vendor/autoload.php';
 require BASE_DIR . '/application/core/autoload.php';
-//require BASE_DIR . '/application/core/IoC.php';
 
 class Apps {
 
