@@ -2,16 +2,16 @@
 
 class IoC_Model {
 
-	private $c;
-	private $models = array();
+	private $instance;
 
-	public function __construct($container) {
-		$this->c = $container;
+	public function __construct() {
+		$this->instance = Apps::$instance;
+
+		$this->load();
 	}
 	
-	public function load($apps, $new_model) {
-		$this->c['service']->add_model($new_model);
-		$apps->$new_model = $this->c[$new_model];
+	private function load() {
+		$this->instance->service->loading($this);
 	}
 
 }

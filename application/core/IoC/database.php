@@ -23,8 +23,9 @@ class IoC_Database {
 	}
 
 	public function __destruct() {
-		if($this->trans_err) {
-			//while(!$this->trans_end());
+		if($this->trans_count > 0) {
+			//finialize transaction
+			while($this->trans_end() === NULL);
 		}
 	}
 
@@ -69,7 +70,7 @@ class IoC_Database {
 
 	public function trans_end() {
 		//not allow if the scope is not in transaction
-		if(!$this->is_trans) return true;
+		if(!$this->is_trans) return;
 		if(--$this->trans_count == 0) {
 			if($this->trans_err) {
 				//if rollback was called, rollback the transaction and reset flag
@@ -84,7 +85,6 @@ class IoC_Database {
 			$this->is_trans = false;
 			return $this->pdo->commit();
 		}
-		return true;
 	}
 
 	public function rollback() {
@@ -96,10 +96,6 @@ class IoC_Database {
 
 	public function last_insert_id() {
 		return $this->pdo->lastInsertId();
-	}
-
-	public function get_pdo() {
-		return $this->pdo;
 	}
 
 	public function onetomany($one, $many, $where = '') {
@@ -151,13 +147,14 @@ class IoC_Database {
 	public function execute($sql, $placeholders = array()) {
 		try {
 			if($this->is_trans && $this->trans_err) return null;
-			return $GLOBALS['container']['database_statement']->query($sql . $this->sql_paginate, $placeholders);
+			$stmt = new IoC_Database_Statement($this->pdo);
+			return $stmt->query($sql . $this->sql_paginate, $placeholders);
 		}
 		catch (PDOException $e) {
 			$this->debug->trace();
-			var_dump($e);
-			var_dump($sql);
-			var_dump($placeholders);
+			$this->debug->log($e);
+			$this->debug->log($sql);
+			$this->debug->log($placeholders);
 			$this->rollback();
 			return null;
 		}
@@ -170,22 +167,20 @@ class IoC_Database {
 
 class IoC_Database_Statement {
 
-	private $db;
+	private $pdo;
 	private $stmt;
 	private $result;
 	private $result_array;
 
-	public function __construct($db) {
-		$this->db = $db;
+	public function __construct($pdo) {
+		$this->pdo = $pdo;
 	}
 
 	public function query($sql, $placeholders = array()) {
-		$pdo = $this->db->get_pdo();
-
 		if(count($placeholders) == 0)
-			$this->stmt = $pdo->query($sql);
+			$this->stmt = $this->pdo->query($sql);
 		else {
-			$this->stmt = $pdo->prepare($sql);
+			$this->stmt = $this->pdo->prepare($sql);
 			$this->stmt->execute($placeholders);
 		}
 

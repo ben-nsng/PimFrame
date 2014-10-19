@@ -2,10 +2,11 @@
 
 class IoC_Service {
 
-	private $c;
-	private $services = array();
-	private $models = array();
-	private $controllers = array();
+	private $instance;
+	private $loading = array();
+	private $loaded = array();
+	private $model;
+	private $service;
 
 	// service - service
 	//
@@ -13,47 +14,76 @@ class IoC_Service {
 	//
 	// model - service, model
 
-	public function __construct($container) {
-		$this->c = $container;
+	public function __construct() {
+		$this->instance = Apps::$instance;
+		$this->model = new IoC_Service_Model($this);
+		$this->service = new IoC_Service_Service($this);
+		$this->instance->model = $this->model;
 	}
 
-	public function add_service($new_service) {
-		if(in_array($new_service, $this->services)) return;
-		foreach($this->services as $service) {
-			//register existing service to new service
-			$this->c[$new_service]->$service = $this->c[$service];
+	public function load($class, $type = 'service') {
+		$instance = $this->instance;
+
+		if(in_array($class, $this->loading)) return;
+
+		if(in_array($class, $this->loaded)) {
+			//set the current controller
+			if($type == 'controller') $instance->controller = $instance->$class;
+			return;
 		}
-		$request_services = array_merge($this->services, $this->models, $this->controllers);
-		foreach($request_services as $service) {
-			//register new service to existing service
-			$this->c[$service]->$new_service = $this->c[$new_service];
+
+		$this->loading[] = $class;
+
+		//create a new controller or a new model
+		if(!isset($instance->$class) && ($type == 'controller' || $type == 'model')) {
+			//init class
+			$instance->$class = new $class;
+			//set the current controller
+			if($type == 'controller') $instance->controller = $instance->$class;
 		}
-		$this->services[] = $new_service;
+
+		foreach($this->loaded as $service) {
+			$instance->$class->$service = $instance->$service;
+			//if(stripos($service, 'controller') !== false || stripos($service, 'model') !== false)
+				$instance->$service->$class = $instance->$class;
+		}
+
+		//add to the loaded class
+		if(($key = array_search($class, $this->loading)) !== false) unset($this->loading[$key]);
+		$this->loaded[] = $class;
 	}
 
-	public function add_controller($new_controller) {
-		if(in_array($new_controller, $this->controllers)) return;
-		$request_services = array_merge($this->services, $this->models);
-		foreach($request_services as $service) {
-			//register existing service to new service
-			$this->c[$new_controller]->$service = $this->c[$service];
-		}
-		$this->controllers[] = $new_controller;
+	public function loading($class) {
+		$instance = $this->instance;
+
+		$class->model = $this->model;
+		$class->service = $this->service;
 	}
 
-	public function add_model($new_model) {
-		if(in_array($new_model, $this->models)) return;
-		$request_services = array_merge($this->services, $this->models);
-		foreach($request_services as $service) {
-			//register existing service to new service
-			$this->c[$new_model]->$service = $this->c[$service];
-		}
-		$request_services = array_merge($this->controllers, $this->models);
-		foreach($request_services as $service) {
-			//register new service to existing service
-			$this->c[$service]->$new_model = $this->c[$new_model];
-		}
-		$this->models[] = $new_model;
+}
+
+class IoC_Service_Model {
+
+	private $service;
+
+	public function __construct($service) {
+		$this->service = $service;
 	}
 
+	public function load($class) {
+		$this->service->load($class, 'model');
+	}
+}
+
+class IoC_Service_Service {
+
+	private $service;
+
+	public function __construct($service) {
+		$this->service = $service;
+	}
+
+	public function load($class) {
+		$this->service->load($class, 'service');
+	}
 }

@@ -2,19 +2,20 @@
 
 class IoC_Controller {
 
-	private $c;
-	private $controller;
+	private $instance;
 
-	public function __construct($container) {
-		$this->c = $container;
+	public function __construct() {
+		$this->instance = Apps::$instance;
+
+		$this->load();
 	}
 
-	public function set_controller($controller) {
-		$this->controller = $this->c[$controller];
-		$this->c['service']->add_controller($controller);
+	private function load() {
+		$this->instance->service->loading($this);
 	}
 
 	public function __call($method_name, $args) {
-		return $this->controller->$method_name();
+		if(method_exists($this, $method_name) || (isset($this->method_name) && $this->$method_name instanceof Closure))
+			return call_user_func_array($this->$method_name, $args);
 	}
 }

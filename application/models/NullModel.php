@@ -1,5 +1,9 @@
 <?php
 
-class NullModel {
+class NullModel extends IoC_Model {
+
+	public function __construct() {
+		parent::__construct();
+	}
 
 }

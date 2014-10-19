@@ -6,7 +6,8 @@ class IoC_Upload {
 	}
 
 	public function file($name) {
-		return $GLOBALS['container']['upload_file']->set_file($name);
+		$stmt = new IoC_Upload_File;
+		return $stmt->set_file($name);
 	}
 }
 
