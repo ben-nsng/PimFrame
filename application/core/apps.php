@@ -62,6 +62,7 @@ class Apps {
 	}
 
 	private function output($buffer) {
+		//return $buffer;
 		return $this->response->parse($buffer);
 	}
 

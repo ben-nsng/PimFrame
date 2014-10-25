@@ -149,7 +149,11 @@ class IoC_Database {
 		try {
 			if($this->is_trans && $this->trans_err) return null;
 			$stmt = new IoC_Database_Statement($this->pdo);
-			return $stmt->query($sql . $this->sql_paginate, $placeholders);
+			$query = $stmt->query($sql . $this->sql_paginate, $placeholders);
+
+			//reset paginate
+			$this->sql_paginate = '';
+			return $query;
 		}
 		catch (PDOException $e) {
 			$this->debug->trace();
@@ -158,10 +162,9 @@ class IoC_Database {
 			$this->debug->log($placeholders);
 			$this->rollback();
 			
-			return null;
-		}
-		finally {
+			//reset paginate
 			$this->sql_paginate = '';
+			return null;
 		}
 	}
 

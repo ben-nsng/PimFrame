@@ -70,6 +70,14 @@ class IoC_Upload_File {
 		return '';
 	}
 
+	public function extension() {
+		if(isset($this->handle)) {
+			$name = $this->realname();
+			return strtolower(substr($name, strrpos($name, '.') + 1));
+		}
+		return '';
+	}
+
 
 
 }

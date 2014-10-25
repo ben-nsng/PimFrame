@@ -78,6 +78,14 @@ class IoC_Request {
 	}
 
 	private function parse_incoming_params() {
+		if(IS_RESTFUL_CALL) {
+			if(!isset($_SERVER['PATH_INFO'])) {
+				$_SERVER['PATH_INFO'] = $_SERVER['QUERY_STRING'];
+				if(($pos = strpos($_SERVER['REQUEST_URI'], '?')) !== false)
+					$_SERVER['QUERY_STRING'] = substr($_SERVER['REQUEST_URI'], $pos + 1);
+			}
+		}
+
 		$parameters = array();
  
 		// first of all, pull the GET vars
@@ -88,7 +96,6 @@ class IoC_Request {
 
 		$parameters = array();
  
-		// now how about PUT/POST bodies? These override what we got from GET
 		$body = file_get_contents("php://input");
 		$content_type = false;
 		if(isset($_SERVER['CONTENT_TYPE'])) {
@@ -114,8 +121,10 @@ class IoC_Request {
 			default:
 				// we could parse other supported formats here
 				if(stripos($content_type, 'multipart/form-data') === 0) {
-					$this->gets = $_GET;
-					$this->posts = $_POST;
+					if(!IS_RESTFUL_CALL) {
+						$this->gets = $_GET;
+					}
+						$this->posts = $_POST;
 					return;
 				}
 				break;
@@ -125,6 +134,8 @@ class IoC_Request {
 			$verb = $this->verb . 's';
 			$this->$verb = $parameters;
 		}
+
+		
 	}
 
 }
