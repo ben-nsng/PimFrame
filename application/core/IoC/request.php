@@ -70,20 +70,27 @@ class IoC_Request {
 	}
 
 	public function set_pathinfo($path_info = '') {
-		if(!isset($_SERVER['PATH_INFO']) && $path_info == '') return;
-		if(isset($_SERVER['PATH_INFO']))
-			$this->url_elements = explode('/', $_SERVER['PATH_INFO']);
-		else if($path_info != '')
+		if($path_info != '')
 			$this->url_elements = explode('/', $path_info);
+		else if(isset($_SERVER['PATH_INFO']))
+			$this->url_elements = explode('/', $_SERVER['PATH_INFO']);
+		else if(IS_PATH_REWRITE) {
+			$this->rewrite_pathinfo();
+			$this->set_pathinfo();
+		}
+	}
+
+	public function rewrite_pathinfo() {
+		if(!isset($_SERVER['PATH_INFO'])) {
+			$_SERVER['PATH_INFO'] = $_SERVER['QUERY_STRING'];
+			if(($pos = strpos($_SERVER['REQUEST_URI'], '?')) !== false)
+				$_SERVER['QUERY_STRING'] = substr($_SERVER['REQUEST_URI'], $pos + 1);
+		}
 	}
 
 	private function parse_incoming_params() {
 		if(IS_RESTFUL_CALL) {
-			if(!isset($_SERVER['PATH_INFO'])) {
-				$_SERVER['PATH_INFO'] = $_SERVER['QUERY_STRING'];
-				if(($pos = strpos($_SERVER['REQUEST_URI'], '?')) !== false)
-					$_SERVER['QUERY_STRING'] = substr($_SERVER['REQUEST_URI'], $pos + 1);
-			}
+			$this->rewrite_pathinfo();
 		}
 
 		$parameters = array();
@@ -101,33 +108,29 @@ class IoC_Request {
 		if(isset($_SERVER['CONTENT_TYPE'])) {
 			$content_type = $_SERVER['CONTENT_TYPE'];
 		}
-		switch($content_type) {
-			case "application/json":
-				$body_params = json_decode($body);
-				if($body_params) {
-					foreach($body_params as $param_name => $param_value) {
-						$parameters[$param_name] = $param_value;
-					}
+
+		if(stripos($content_type, 'application/json') === 0) {
+			$body_params = json_decode($body);
+			if($body_params) {
+				foreach($body_params as $param_name => $param_value) {
+					$parameters[$param_name] = $param_value;
 				}
-				$this->format = "json";
-				break;
-			case "application/x-www-form-urlencoded":
-				parse_str($body, $postvars);
-				foreach($postvars as $field => $value) {
-					$parameters[$field] = $value;
-				}
-				$this->format = "html";
-				break;
-			default:
-				// we could parse other supported formats here
-				if(stripos($content_type, 'multipart/form-data') === 0) {
-					if(!IS_RESTFUL_CALL) {
-						$this->gets = $_GET;
-					}
-						$this->posts = $_POST;
-					return;
-				}
-				break;
+			}
+			$this->format = "json";
+		}
+		else if(stripos($content_type, 'application/x-www-form-urlencoded') === 0) {
+			parse_str($body, $postvars);
+			foreach($postvars as $field => $value) {
+				$parameters[$field] = $value;
+			}
+			$this->format = "html";
+		}
+		else if(stripos($content_type, 'multipart/form-data') === 0) {
+			if(!IS_RESTFUL_CALL) {
+				$this->gets = $_GET;
+			}
+				$this->posts = $_POST;
+			return;
 		}
 
 		if($this->verb != 'get') {

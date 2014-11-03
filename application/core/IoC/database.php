@@ -147,7 +147,7 @@ class IoC_Database {
 
 	public function execute($sql, $placeholders = array()) {
 		try {
-			if($this->is_trans && $this->trans_err) return null;
+			if($this->is_trans && $this->trans_err) return new IoC_Database_Statement();
 			$stmt = new IoC_Database_Statement($this->pdo);
 			$query = $stmt->query($sql . $this->sql_paginate, $placeholders);
 
@@ -157,14 +157,18 @@ class IoC_Database {
 		}
 		catch (PDOException $e) {
 			$this->debug->trace();
-			$this->debug->log($e);
-			$this->debug->log($sql);
-			$this->debug->log($placeholders);
+			$this->debug->log('--PDOException Message--');
+			$this->debug->log($e->getMessage(), true);
+			$this->debug->log('--PDO SQL Statement--');
+			$this->debug->log($sql, true);
+			$this->debug->log('--PDO placeholders Info--');
+			$this->debug->log($placeholders, true);
 			$this->rollback();
 			
 			//reset paginate
 			$this->sql_paginate = '';
-			return null;
+
+			return new IoC_Database_Statement();
 		}
 	}
 
@@ -176,12 +180,17 @@ class IoC_Database_Statement {
 	private $stmt;
 	private $result;
 	private $result_array;
+	private $error;
 
-	public function __construct($pdo) {
+	public function __construct($pdo = '') {
 		$this->pdo = $pdo;
+
+		if($pdo = '') $this->error = false;
 	}
 
 	public function query($sql, $placeholders = array()) {
+		if($this->pdo == '') return;
+
 		if(count($placeholders) == 0)
 			$this->stmt = $this->pdo->query($sql);
 		else {
@@ -194,6 +203,8 @@ class IoC_Database_Statement {
 	}
 
 	public function result() {
+		if($this->error) return array();
+
 		if($this->result != null) return $this->result;
 		if($this->stmt != null) {
 			$this->result = $this->stmt->fetchAll(PDO::FETCH_OBJ);
@@ -203,6 +214,8 @@ class IoC_Database_Statement {
 	}
 
 	public function result_array() {
+		if($this->error) return array();
+
 		if($this->result_array != null) return $this->result_array;
 		if($this->stmt != null) {
 			$this->result_array = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -212,6 +225,8 @@ class IoC_Database_Statement {
 	}
 
 	public function num_rows() {
+		if($this->error) return 0;
+
 		if($this->stmt != null) return $this->stmt->rowCount();
 		return 0;
 	}

@@ -6,10 +6,12 @@ class Apps {
 
 	public static $instance;
 	public $controller;
+	private $stime;
 
 	public function __construct() {
 
 		self::$instance = $this;
+		$this->stime = microtime(true);
 
 		//require IoC
 		require BASE_DIR . '/application/core/IoC.php';
@@ -51,8 +53,8 @@ class Apps {
 		if(!($success = $this->controller->pre_routing())) $this->response->error_404();
 
 		if($success !== false) {
-			if(method_exists($this->controller, $action_name)) $result = $this->controller->$action_name();
-			else $result = $this->controller->$method_name();
+			if(method_exists($this->controller, $action_name)) $result = call_user_func_array(array($this->controller, $action_name), array_slice($this->request->url_elements, 3));
+			else $result = call_user_func_array(array($this->controller, $method_name), array_slice($this->request->url_elements, 3));
 		}
 
 		//post routing
@@ -63,7 +65,11 @@ class Apps {
 
 	private function output($buffer) {
 		//return $buffer;
-		return $this->response->parse($buffer);
+		$buffer = $this->response->parse($buffer);
+		if(ENVIRONMENT == 'development' && !IS_RESTFUL_CALL) {
+			$buffer .= '<script>$(function() { $("body").prepend("<div class=\"align-right\">Backend Running Time : ' . (microtime(true) - $this->stime) . '<br />Total Running Time : " + (new Date().getTime() / 1000 - ' . $this->stime . ' + "</div><span class=\"clearfix\">&nbsp;</span>")); });</script>';
+		}
+		return $buffer;
 	}
 
 	public function __destruct() {

@@ -54,6 +54,9 @@ $this->upload = new IoC_Upload;
 // ** Create I18n ** //
 $this->i18n = new IoC_I18n;
 
+// ** Create Form Control ** //
+$this->form = new IoC_Form;
+
 // ** PRE-LOADING COMPONENT ** //
 
 $this->service->load('config');
@@ -66,5 +69,6 @@ $this->service->load('response');
 $this->service->load('storage');
 $this->service->load('upload');
 $this->service->load('i18n');
+$this->service->load('form');
 $this->session->load();
 $this->database->load();

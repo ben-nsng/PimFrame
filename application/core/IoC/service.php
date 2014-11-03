@@ -7,6 +7,7 @@ class IoC_Service {
 	private $loaded = array();
 	private $model;
 	private $service;
+	private $preload;
 
 	// service - service
 	//
@@ -16,9 +17,11 @@ class IoC_Service {
 
 	public function __construct() {
 		$this->instance = Apps::$instance;
-		$this->model = new IoC_Service_Model($this);
-		$this->service = new IoC_Service_Service($this);
-		$this->instance->model = $this->model;
+		$this->preload = new IoC_Service_Loader($this);
+		$this->instance->preload = $this->preload;
+		//$this->model = new IoC_Service_Model($this);
+		//$this->service = new IoC_Service_Service($this);
+		$this->instance->preload = $this->preload;
 	}
 
 	public function load($class, $type = 'service') {
@@ -56,12 +59,37 @@ class IoC_Service {
 	public function loading($class) {
 		$instance = $this->instance;
 
-		$class->model = $this->model;
+		$class->preload = $this->preload;
 		$class->service = $this->service;
 	}
 
 }
 
+class IoC_Service_Loader {
+
+	private $service;
+
+	public function __construct($service) {
+		$this->service = $service;
+	}
+
+	public function model($class) {
+		$this->service->load($class, 'model');
+	}
+
+	public function service($class) {
+		$this->service->load($class, 'service');
+	}
+
+	public function view($view, $data = array()) {
+		GLOBAL $apps;
+		extract($data, EXTR_OVERWRITE);
+		include(BASE_DIR . '/../' . $view);
+	}
+
+}
+
+/*
 class IoC_Service_Model {
 
 	private $service;
@@ -87,3 +115,4 @@ class IoC_Service_Service {
 		$this->service->load($class, 'service');
 	}
 }
+*/
