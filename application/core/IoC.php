@@ -27,8 +27,11 @@ $this->response = new IoC_Response;
 // ** Create Config ** //
 $this->config = new IoC_Config;
 
+include BASE_DIR . '/application/config/config.php';
+$this->config->add_config(array('default' => $config));
+
 // ** Create Database ** //
-require BASE_DIR . '/application/config/database.php';
+include BASE_DIR . '/application/config/database.php';
 $this->config->add_config(array('database' => $database));
 
 $this->database = new IoC_Database($this->config->database[$this->config->database['choice']]);
@@ -40,7 +43,7 @@ $this->session = new IoC_Session;
 $this->debug = new IoC_Debug;
 
 // ** Create Security ** //
-require BASE_DIR . '/application/config/security.php';
+include BASE_DIR . '/application/config/security.php';
 $this->config->add_config(array('security' => $security));
 
 $this->security = new IoC_Security($this->config->security);

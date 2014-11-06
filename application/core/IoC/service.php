@@ -84,7 +84,14 @@ class IoC_Service_Loader {
 	public function view($view, $data = array()) {
 		GLOBAL $apps;
 		extract($data, EXTR_OVERWRITE);
-		include(BASE_DIR . '/../' . $view);
+
+		chdir(BASE_DIR . '/view');
+		include($view . '.php');
+		chdir(BASE_DIR);
+	}
+
+	public function helper($class) {
+		include(BASE_DIR . '/application/helpers/' . $class . '.php');
 	}
 
 }

@@ -195,8 +195,21 @@ class IoC_Database_Statement {
 			$this->stmt = $this->pdo->query($sql);
 		else {
 			if(!is_array($placeholders)) $placeholders = array($placeholders);
+			
 			$this->stmt = $this->pdo->prepare($sql);
 			$this->stmt->execute($placeholders);
+
+			//check if placeholders are intval or string
+			/*
+			$count = 1;
+			foreach($placeholders as $placeholder)
+				if(is_numeric($placeholder) && intval($placeholder) == $placeholder)
+					$this->stmt->bindValue($count++, intval($placeholder), PDO::PARAM_INT); 
+				else
+					$this->stmt->bindValue($count++, $placeholder, PDO::PARAM_STR);
+
+			$this->stmt->execute();
+			*/
 		}
 
 		return $this;
