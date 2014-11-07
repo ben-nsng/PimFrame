@@ -11,11 +11,7 @@ class PM_Database {
 	private $trans_count;
 	private $sql_paginate;
 
-	public function __construct($config) {
-		$this->conn_str = $config['dbdriver'] . ':host=' . $config['hostname'] . ';dbname=' . $config['database'];
-		$this->usr = $config['username'];
-		$this->pass = $config['password'];
-
+	public function __construct() {
 		// transaction flag
 		$this->is_trans = false;
 		$this->trans_err = false;
@@ -30,6 +26,13 @@ class PM_Database {
 	}
 
 	public function load() {
+		$config = $this->config->get('database');
+		$config = $config[$config['choice']];
+
+		$this->conn_str = $config['dbdriver'] . ':host=' . $config['hostname'] . ';dbname=' . $config['database'];
+		$this->usr = $config['username'];
+		$this->pass = $config['password'];
+
 		if(!isset($this->pdo)) {
 			$this->pdo = new PDO($this->conn_str, $this->usr, $this->pass);
 			$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

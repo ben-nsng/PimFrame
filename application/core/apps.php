@@ -31,7 +31,7 @@ class Apps {
 		$this->request->set_pathinfo($route);
 
 		//default controller
-		$controller_name = ucfirst($this->config->default['controller']) . 'Controller';
+		$controller_name = ucfirst($this->config->get('config')['controller']) . 'Controller';
 		$elems = $this->request->url_elements;
 		$args = $elems;
 

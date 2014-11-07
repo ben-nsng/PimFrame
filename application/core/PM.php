@@ -15,11 +15,11 @@ $this->response = new PM_Response;
 $this->config = new PM_Config;
 
 include BASE_DIR . '/application/config/config.php';
-$this->config->add_config(array('default' => $config));
+$this->config->set('config', $config);
 
 // ** Create Database ** //
 include BASE_DIR . '/application/config/database.php';
-$this->config->add_config(array('database' => $database));
+$this->config->set('database', $database);
 
 #$this->database = new PM_Database($this->config->database[$this->config->database['choice']]);
 
@@ -31,9 +31,9 @@ $this->debug = new PM_Debug;
 
 // ** Create Security ** //
 include BASE_DIR . '/application/config/security.php';
-$this->config->add_config(array('security' => $security));
+$this->config->set('security', $security);
 
-$this->security = new PM_Security($this->config->security);
+$this->security = new PM_Security($this->config->get('security'));
 
 // ** Create Storage ** //
 $this->storage = new PM_Storage;
@@ -61,7 +61,7 @@ $this->service->_load('form');
 
 // --** USER DEFINED MODULES **-- //
 // includes 'session', 'database'
-$modules = $this->config->default['modules'];
+$modules = $this->config->get('config')['modules'];
 
 foreach($modules as $module) {
 	$module_name = 'PM_' . $module;
