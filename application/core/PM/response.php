@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Response {
+class PM_Response {
 
 	private $parsers;
 	private $messages;

@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Model {
+class PM_Model {
 
 	private $instance;
 

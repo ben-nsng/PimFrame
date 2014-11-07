@@ -1,13 +1,13 @@
 <?php
 
-class IoC_Service {
+class PM_Service {
 
 	private $instance;
 	private $loading = array();
 	private $loaded = array();
 	private $model;
 	private $service;
-	private $preload;
+	private $load;
 
 	// service - service
 	//
@@ -17,14 +17,14 @@ class IoC_Service {
 
 	public function __construct() {
 		$this->instance = Apps::$instance;
-		$this->preload = new IoC_Service_Loader($this);
-		$this->instance->preload = $this->preload;
-		//$this->model = new IoC_Service_Model($this);
-		//$this->service = new IoC_Service_Service($this);
-		$this->instance->preload = $this->preload;
+		$this->load = new PM_Service_Loader($this);
+		$this->instance->load = $this->load;
+		//$this->model = new PM_Service_Model($this);
+		//$this->service = new PM_Service_Service($this);
+		$this->instance->load = $this->load;
 	}
 
-	public function load($class, $type = 'service') {
+	public function _load($class, $type = 'service') {
 		$instance = $this->instance;
 
 		if(in_array($class, $this->loading)) return;
@@ -59,13 +59,13 @@ class IoC_Service {
 	public function loading($class) {
 		$instance = $this->instance;
 
-		$class->preload = $this->preload;
+		$class->load = $this->load;
 		$class->service = $this->service;
 	}
 
 }
 
-class IoC_Service_Loader {
+class PM_Service_Loader {
 
 	private $service;
 
@@ -85,7 +85,7 @@ class IoC_Service_Loader {
 		GLOBAL $apps;
 		extract($data, EXTR_OVERWRITE);
 
-		chdir(BASE_DIR . '/view');
+		chdir(BASE_DIR . '/application/views');
 		include($view . '.php');
 		chdir(BASE_DIR);
 	}
@@ -97,7 +97,7 @@ class IoC_Service_Loader {
 }
 
 /*
-class IoC_Service_Model {
+class PM_Service_Model {
 
 	private $service;
 
@@ -110,7 +110,7 @@ class IoC_Service_Model {
 	}
 }
 
-class IoC_Service_Service {
+class PM_Service_Service {
 
 	private $service;
 

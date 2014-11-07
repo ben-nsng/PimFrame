@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Request {
+class PM_Request {
 
 	public $url_elements;
 	public $verb;

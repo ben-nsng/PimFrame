@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Security {
+class PM_Security {
 	
 	private $salt;
 	private $key;

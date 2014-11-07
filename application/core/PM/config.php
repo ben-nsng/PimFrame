@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Config {
+class PM_Config {
 
 	public function __construct() {
 	}

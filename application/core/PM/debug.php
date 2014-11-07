@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Debug {
+class PM_Debug {
 
 	private $message;
 

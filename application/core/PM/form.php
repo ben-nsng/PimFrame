@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Form {
+class PM_Form {
 
 	private $success;
 

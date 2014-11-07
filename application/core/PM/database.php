@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Database {
+class PM_Database {
 
 	private $conn_str;
 	private $usr;
@@ -147,8 +147,8 @@ class IoC_Database {
 
 	public function execute($sql, $placeholders = array()) {
 		try {
-			if($this->is_trans && $this->trans_err) return new IoC_Database_Statement();
-			$stmt = new IoC_Database_Statement($this->pdo);
+			if($this->is_trans && $this->trans_err) return new PM_Database_Statement();
+			$stmt = new PM_Database_Statement($this->pdo);
 			$query = $stmt->query($sql . $this->sql_paginate, $placeholders);
 
 			//reset paginate
@@ -168,13 +168,13 @@ class IoC_Database {
 			//reset paginate
 			$this->sql_paginate = '';
 
-			return new IoC_Database_Statement();
+			return new PM_Database_Statement();
 		}
 	}
 
 }
 
-class IoC_Database_Statement {
+class PM_Database_Statement {
 
 	private $pdo;
 	private $stmt;

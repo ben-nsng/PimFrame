@@ -1,17 +1,29 @@
 <?php
 
-class IoC_Upload {
+class PM_Upload {
 
 	public function __construct() {
 	}
 
 	public function file($name) {
-		$stmt = new IoC_Upload_File;
+		$stmt = new PM_Upload_File;
 		return $stmt->set_file($name);
+	}
+
+	//html5 for reading multiple uploaded file
+	public function files($name) {
+		$files = array();
+		if(isset($_FILES[$name]))
+			for($i = 0; $i < count($_FILES[$name]['name']); $i++) {
+				$file = new PM_Upload_File;
+				$file->set_file($name, $i);
+				$files[] = $file;
+			}
+		return $files;
 	}
 }
 
-class IoC_Upload_File {
+class PM_Upload_File {
 
 	private $name;
 	private $handle;
@@ -20,10 +32,17 @@ class IoC_Upload_File {
 		$this->handle == null;
 	}
 
-	public function set_file($name) {
+	public function set_file($name, $i = -1) {
 		$this->name = $name;
 		if(isset($_FILES[$this->name]))
-			$this->handle = $_FILES[$this->name];
+			if($i == -1) $this->handle = $_FILES[$this->name];
+			else $this->handle = array(
+				'name' => $_FILES[$this->name]['name'][$i],
+				'type' => $_FILES[$this->name]['type'][$i],
+				'tmp_name' => $_FILES[$this->name]['tmp_name'][$i],
+				'error' => $_FILES[$this->name]['error'][$i],
+				'size' => $_FILES[$this->name]['size'][$i]
+				);
 		return $this;
 	}
 

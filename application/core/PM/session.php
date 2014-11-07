@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Session {
+class PM_Session {
 
 	public function __construct() {
 	}

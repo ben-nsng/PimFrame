@@ -17,9 +17,9 @@ function apiAutoload($classname)
 		}
 		else
 			return false;
-	} elseif (preg_match('/IoC\_([a-zA-Z0-9]+)$/', $classname, $match)) {
-		if(file_exists(BASE_DIR . '/application/core/IoC/' . strtolower($match[1]) . '.php')) {
-			include BASE_DIR . '/application/core/IoC/' . strtolower($match[1]) . '.php';
+	} elseif (preg_match('/PM\_([a-zA-Z0-9]+)$/', $classname, $match)) {
+		if(file_exists(BASE_DIR . '/application/core/PM/' . strtolower($match[1]) . '.php')) {
+			include BASE_DIR . '/application/core/PM/' . strtolower($match[1]) . '.php';
 			return true;
 		}
 		else

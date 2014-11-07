@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Storage {
+class PM_Storage {
 
 	private $last_uploaded_file_from = '';
 	private $last_uploaded_file_to = '';

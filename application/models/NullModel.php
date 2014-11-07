@@ -1,6 +1,6 @@
 <?php
 
-class NullModel extends IoC_Model {
+class NullModel extends PM_Model {
 
 	public function __construct() {
 		parent::__construct();

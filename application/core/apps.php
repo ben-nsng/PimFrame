@@ -14,7 +14,7 @@ class Apps {
 		$this->stime = microtime(true);
 
 		//require IoC
-		require BASE_DIR . '/application/core/IoC.php';
+		require BASE_DIR . '/application/core/PM.php';
 
 		$self = $this;
 		$this->response->add_parser(function($body) use($self) {
@@ -51,7 +51,7 @@ class Apps {
 		}
 
 		//create controller instance
-		$this->service->load($controller_name, 'controller');
+		$this->service->_load($controller_name, 'controller');
 			
 		$action_name = $method_name . '_' . strtolower($this->request->verb);
 
@@ -81,6 +81,7 @@ class Apps {
 		//return $buffer;
 		$buffer = $this->response->parse($buffer);
 		if(ENVIRONMENT == 'development' && !IS_RESTFUL_CALL) {
+			$buffer .= 'Backend Running Time : ' . (microtime(true) - $this->stime);
 		//	$buffer .= '<script>$(function() { $("body").prepend("<div class=\"align-right\">Backend Running Time : ' . (microtime(true) - $this->stime) . '<br />Total Running Time : " + (new Date().getTime() / 1000 - ' . $this->stime . ' + "</div><span class=\"clearfix\">&nbsp;</span>")); });</script>';
 		}
 		return $buffer;

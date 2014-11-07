@@ -1,6 +1,6 @@
 <?php
 
-class IoC_Controller {
+class PM_Controller {
 
 	private $instance;
 
