@@ -16,16 +16,15 @@ class Apps {
 		//require IoC
 		require BASE_DIR . '/application/core/PM.php';
 
-		$self = $this;
-		$this->response->add_parser(function($body) use($self) {
-			if(ENVIRONMENT == 'development') {
-				$body .= $self->debug->get_message();
-				return $body;
-			}
-			return $body;
-		});
 		//buffering output
 		ob_start(array($this, "output"));
+
+		//add parser
+		$self = $this;
+		$this->post_parse = function(&$body) use($self) {
+			$body = preg_replace('/\$runtime/', (microtime(true) - $this->stime), $body);
+		};
+		$this->response->add_parser($this->post_parse);
 	}
 
 	public function run($route = '') {
@@ -78,13 +77,7 @@ class Apps {
 	}
 
 	private function output($buffer) {
-		//return $buffer;
-		$buffer = $this->response->parse($buffer);
-		if(ENVIRONMENT == 'development' && !IS_RESTFUL_CALL) {
-			$buffer .= 'Backend Running Time : ' . (microtime(true) - $this->stime);
-		//	$buffer .= '<script>$(function() { $("body").prepend("<div class=\"align-right\">Backend Running Time : ' . (microtime(true) - $this->stime) . '<br />Total Running Time : " + (new Date().getTime() / 1000 - ' . $this->stime . ' + "</div><span class=\"clearfix\">&nbsp;</span>")); });</script>';
-		}
-		return $buffer;
+		return $this->response->parse($buffer);
 	}
 
 	public function __destruct() {

@@ -74,11 +74,11 @@ class PM_Service_Loader {
 	}
 
 	public function model($class) {
-		$this->service->load($class, 'model');
+		$this->service->_load($class, 'model');
 	}
 
 	public function service($class) {
-		$this->service->load($class, 'service');
+		$this->service->_load($class, 'service');
 	}
 
 	public function view($view, $data = array()) {
@@ -95,31 +95,3 @@ class PM_Service_Loader {
 	}
 
 }
-
-/*
-class PM_Service_Model {
-
-	private $service;
-
-	public function __construct($service) {
-		$this->service = $service;
-	}
-
-	public function load($class) {
-		$this->service->load($class, 'model');
-	}
-}
-
-class PM_Service_Service {
-
-	private $service;
-
-	public function __construct($service) {
-		$this->service = $service;
-	}
-
-	public function load($class) {
-		$this->service->load($class, 'service');
-	}
-}
-*/

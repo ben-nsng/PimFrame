@@ -17,20 +17,24 @@ class PM_Response {
 		$this->is_redirect = false;
 		$this->is_post = false;
 		$this->html_post = '';
-		$this->add_parser(function($body) {
+
+		//create parser for debug and clean up
+		$self = $this;
+		$this->post_parse = function(&$body) use($self) {
+			if(ENVIRONMENT == 'development') $body = preg_replace('/\$debug/', $self->debug->get_message(), $body);
 			if(IS_RESTFUL_CALL) {
-				if($this->is_error_404) return json_encode(array('error' => 'The page does not exist!'));
-				if($body === NULL) return json_encode(array());
-				//else return json_encode($body);
+				if($self->is_error_404) $body = json_encode(array('error' => 'The page does not exist!'));
+				if($body === NULL) $body = json_encode(array());
 			}
-			return $body;
-		});
+		};
+		$this->add_parser($this->post_parse);
 	}
 
 	public function error_404() {
 		$this->is_error_404 = true;
 	}
 
+	//redirect with get or post request
 	public function redirect($page, $posts = array()) {
 		if($this->is_redirect) return;
 
@@ -47,16 +51,24 @@ class PM_Response {
 		exit;
 	}
 
+	public function reroute($page) {
+		GLOBAL $apps;
+		return $apps->run($page);
+	}
+
 	public function add_parser($parser) {
 		$this->parsers[] = $parser;
 	}
 
 	public function parse($body) {
+		//call this line when redirect with post request
 		if($this->is_post) return $this->html_post;
+		//call this line when header redirect
 		if($this->is_redirect) return "";
 		
+		//otherwise, run parser for the body
 		foreach($this->parsers as $parser)
-			$body = $parser($body);
+			$parser($body);	//pass reference into parser
 		return $body;
 	}
 

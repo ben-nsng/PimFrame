@@ -1,5 +1,7 @@
 <?php
 
+// --** LOAD CORE MODULES **-- //
+
 // ** Create Service ** //
 $this->service = new PM_Service;
 
@@ -22,7 +24,7 @@ $this->config->add_config(array('database' => $database));
 #$this->database = new PM_Database($this->config->database[$this->config->database['choice']]);
 
 // ** Create Session ** //
-$this->session = new PM_Session;
+//$this->session = new PM_Session;
 
 // ** Create Debug ** //
 $this->debug = new PM_Debug;
@@ -45,11 +47,9 @@ $this->upload = new PM_Upload;
 // ** Create Form Control ** //
 $this->form = new PM_Form;
 
-// ** PRE-LOADING COMPONENT ** //
+// ** LOADING COMPONENT ** //
 
 $this->service->_load('config');
-#$this->service->_load('database');
-$this->service->_load('session');
 $this->service->_load('debug');
 $this->service->_load('security');
 $this->service->_load('request');
@@ -58,5 +58,15 @@ $this->service->_load('storage');
 $this->service->_load('upload');
 //$this->service->_load('i18n');
 $this->service->_load('form');
-$this->session->load();
-#$this->database->load();
+
+// --** USER DEFINED MODULES **-- //
+// includes 'session', 'database'
+$modules = $this->config->default['modules'];
+
+foreach($modules as $module) {
+	$module_name = 'PM_' . $module;
+	$this->$module = new $module_name;
+	$this->service->_load($module);
+	if(method_exists($this->$module, 'load'))
+		$this->$module->load();
+}

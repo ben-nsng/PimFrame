@@ -12,7 +12,10 @@
 
 	<div id="body">
 		Please visit my git repo for more details.
+		<br />
 		<a href="https://github.com/ben-nsng/PimFrame">https://github.com/ben-nsng/PimFrame</a>
+		<br />
+		Page rendered in $runtime seconds.
 	</div>
 
 </div>
