@@ -39,14 +39,14 @@ class Apps {
 		if(count($elems) > 1 && class_exists($controller = ucfirst($elems[1]) . 'Controller')) {
 			$controller_name = $controller;
 			$method_name = isset($elems[2]) ? $elems[2] : 'index';
-			$args = array_slice($args, 2);
+			$args = array_slice($args, isset($elems[2]) ? 3 : 2);
 		}
 		else {
 			//no default controller
 			if(!class_exists($controller_name)) return $this->response->error_404();
 			//use default controller
 			$method_name = isset($elems[1]) ? $elems[1] : 'index';
-			$args = array_slice($args, 1);
+			$args = array_slice($args, isset($elems[1]) ? 2 : 1);
 		}
 
 		//create controller instance
