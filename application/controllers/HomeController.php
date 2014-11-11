@@ -1,6 +1,6 @@
 <?php
 
-class HomeController extends PM_Controller {
+class HomeController extends PF_Controller {
 
 	public function __construct() {
 		parent::__construct();

@@ -10,7 +10,7 @@ Create Controller in the folder /application/controllers/, method name can eithe
 /application/controllers/UserController.php
 ```
 <?php
-class UserController extends PM_Controller {
+class UserController extends PF_Controller {
 
   public function __construct() {
     parent::__construct();
@@ -46,7 +46,7 @@ Create Your Model in the folder /application/models
 /application/models/UserModel.php
 ```
 <?php
-class UserModel extends PM_Model {
+class UserModel extends PF_Model {
 
   public function __construct() {
     parent::__construct();
