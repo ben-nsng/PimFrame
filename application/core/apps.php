@@ -5,6 +5,11 @@ require BASE_DIR . '/application/core/autoload.php';
 class Apps {
 
 	public static $instance;
+
+	public static function getInstance() {
+		return Apps::$instance;
+	}
+
 	public $controller;
 	private $stime;
 
@@ -14,7 +19,7 @@ class Apps {
 		$this->stime = microtime(true);
 
 		//require IoC
-		require BASE_DIR . '/application/core/PM.php';
+		require BASE_DIR . '/application/core/PF.php';
 
 		//buffering output
 		ob_start(array($this, "output"));
@@ -25,6 +30,8 @@ class Apps {
 			$body = preg_replace('/\$runtime/', (microtime(true) - $this->stime), $body);
 		};
 		$this->response->add_parser($this->post_parse);
+
+		$this->hooks->post_apps_construct($this);
 	}
 
 	public function run($route = '') {
@@ -48,7 +55,7 @@ class Apps {
 			$method_name = isset($elems[1]) ? $elems[1] : 'index';
 			$args = array_slice($args, isset($elems[1]) ? 2 : 1);
 		}
-
+		
 		//create controller instance
 		$this->service->_load($controller_name, 'controller');
 			

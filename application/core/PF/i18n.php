@@ -1,6 +1,6 @@
 <?php
 
-class PM_I18n {
+class PF_I18n {
 
 	public function __construct() {
 	}

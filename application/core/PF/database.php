@@ -1,6 +1,6 @@
 <?php
 
-class PM_Database {
+class PF_Database {
 
 	private $conn_str;
 	private $usr;
@@ -36,9 +36,7 @@ class PM_Database {
 		if(!isset($this->pdo)) {
 			$this->pdo = new PDO($this->conn_str, $this->usr, $this->pass);
 			$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$this->execute('SET NAMES UTF8');
-			$this->execute('SET SESSION group_concat_max_len = 100000');
-			$this->execute('SET time_zone = "+08:00";');
+			$this->hooks->post_db_conn(Apps::getInstance());
 		}
 	}
 
@@ -150,8 +148,8 @@ class PM_Database {
 
 	public function execute($sql, $placeholders = array()) {
 		try {
-			if($this->is_trans && $this->trans_err) return new PM_Database_Statement();
-			$stmt = new PM_Database_Statement($this->pdo);
+			if($this->is_trans && $this->trans_err) return new PF_Database_Statement();
+			$stmt = new PF_Database_Statement($this->pdo);
 			$query = $stmt->query($sql . $this->sql_paginate, $placeholders);
 
 			//reset paginate
@@ -171,13 +169,13 @@ class PM_Database {
 			//reset paginate
 			$this->sql_paginate = '';
 
-			return new PM_Database_Statement();
+			return new PF_Database_Statement();
 		}
 	}
 
 }
 
-class PM_Database_Statement {
+class PF_Database_Statement {
 
 	private $pdo;
 	private $stmt;

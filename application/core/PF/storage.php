@@ -1,6 +1,6 @@
 <?php
 
-class PM_Storage {
+class PF_Storage {
 
 	private $last_uploaded_file_from = '';
 	private $last_uploaded_file_to = '';

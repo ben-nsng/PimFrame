@@ -1,6 +1,6 @@
 <?php
 
-class PM_Service {
+class PF_Service {
 
 	private $instance;
 	private $loading = array();
@@ -16,11 +16,11 @@ class PM_Service {
 	// model - service, model
 
 	public function __construct() {
-		$this->instance = Apps::$instance;
-		$this->load = new PM_Service_Loader($this);
+		$this->instance = Apps::getInstance();
+		$this->load = new PF_Service_Loader($this);
 		$this->instance->load = $this->load;
-		//$this->model = new PM_Service_Model($this);
-		//$this->service = new PM_Service_Service($this);
+		//$this->model = new PF_Service_Model($this);
+		//$this->service = new PF_Service_Service($this);
 		$this->instance->load = $this->load;
 	}
 
@@ -40,7 +40,10 @@ class PM_Service {
 		//create a new controller or a new model
 		if(!isset($instance->$class) && ($type == 'controller' || $type == 'model')) {
 			//init class
+			if($type == 'controller') $this->instance->hooks->pre_controller_construct(Apps::getInstance());
 			$instance->$class = new $class;
+			if($type == 'controller') $this->instance->hooks->post_controller_construct(Apps::getInstance());
+
 			//set the current controller
 			if($type == 'controller') $instance->controller = $instance->$class;
 		}
@@ -65,7 +68,7 @@ class PM_Service {
 
 }
 
-class PM_Service_Loader {
+class PF_Service_Loader {
 
 	private $service;
 
@@ -85,9 +88,9 @@ class PM_Service_Loader {
 		GLOBAL $apps;
 		extract($data, EXTR_OVERWRITE);
 
-		chdir(BASE_DIR . '/application/views');
+		//chdir(BASE_DIR . '/application/views');
 		include($view . '.php');
-		chdir(BASE_DIR);
+		//chdir(BASE_DIR);
 	}
 
 	public function helper($class) {

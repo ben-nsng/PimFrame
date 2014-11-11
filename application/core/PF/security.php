@@ -1,6 +1,6 @@
 <?php
 
-class PM_Security {
+class PF_Security {
 	
 	private $salt;
 	private $key;

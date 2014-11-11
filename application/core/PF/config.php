@@ -1,6 +1,6 @@
 <?php
 
-class PM_Config {
+class PF_Config {
 
 	private $config = array();
 

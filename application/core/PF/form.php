@@ -1,6 +1,6 @@
 <?php
 
-class PM_Form {
+class PF_Form {
 
 	private $success;
 

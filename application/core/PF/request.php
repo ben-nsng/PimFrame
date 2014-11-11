@@ -1,6 +1,6 @@
 <?php
 
-class PM_Request {
+class PF_Request {
 
 	public $url_elements;
 	public $verb;

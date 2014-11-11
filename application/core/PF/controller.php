@@ -1,6 +1,6 @@
 <?php
 
-class PM_Controller {
+class PF_Controller {
 
 	private $instance;
 
@@ -15,7 +15,7 @@ class PM_Controller {
 	}
 
 	public function __call($method_name, $args) {
-		if(method_exists($this, $method_name) || (isset($this->method_name) && $this->$method_name instanceof Closure))
+		if(method_exists($this, $method_name) || (isset($this->$method_name) && $this->$method_name instanceof Closure))
 			return call_user_func_array($this->$method_name, $args);
 	}
 }

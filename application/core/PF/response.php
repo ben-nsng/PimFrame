@@ -1,6 +1,6 @@
 <?php
 
-class PM_Response {
+class PF_Response {
 
 	private $parsers;
 	private $messages;

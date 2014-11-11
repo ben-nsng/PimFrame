@@ -1,6 +1,6 @@
 <?php
 
-class PM_Debug {
+class PF_Debug {
 
 	private $message;
 

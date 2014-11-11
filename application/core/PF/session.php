@@ -1,6 +1,6 @@
 <?php
 
-class PM_Session {
+class PF_Session {
 
 	public function __construct() {
 	}

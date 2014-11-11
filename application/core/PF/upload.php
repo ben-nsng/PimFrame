@@ -1,12 +1,12 @@
 <?php
 
-class PM_Upload {
+class PF_Upload {
 
 	public function __construct() {
 	}
 
 	public function file($name) {
-		$stmt = new PM_Upload_File;
+		$stmt = new PF_Upload_File;
 		return $stmt->set_file($name);
 	}
 
@@ -15,7 +15,7 @@ class PM_Upload {
 		$files = array();
 		if(isset($_FILES[$name]))
 			for($i = 0; $i < count($_FILES[$name]['name']); $i++) {
-				$file = new PM_Upload_File;
+				$file = new PF_Upload_File;
 				$file->set_file($name, $i);
 				$files[] = $file;
 			}
@@ -23,7 +23,7 @@ class PM_Upload {
 	}
 }
 
-class PM_Upload_File {
+class PF_Upload_File {
 
 	private $name;
 	private $handle;
@@ -70,7 +70,7 @@ class PM_Upload_File {
 			default:
 			break;
 		}
-		var_dump($this->handle);
+		//var_dump($this->handle);
 		return '';
 	}
 
