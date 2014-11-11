@@ -88,9 +88,9 @@ class PF_Service_Loader {
 		GLOBAL $apps;
 		extract($data, EXTR_OVERWRITE);
 
-		//chdir(BASE_DIR . '/application/views');
+		chdir(BASE_DIR . '/application/views');
 		include($view . '.php');
-		//chdir(BASE_DIR);
+		chdir(BASE_DIR);
 	}
 
 	public function helper($class) {

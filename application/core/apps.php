@@ -31,7 +31,7 @@ class Apps {
 		};
 		$this->response->add_parser($this->post_parse);
 
-		$this->hooks->post_apps_construct($this);
+		$this->hooks->apps_construct($this);
 	}
 
 	public function run($route = '') {
@@ -88,6 +88,9 @@ class Apps {
 	}
 
 	public function __destruct() {
+		//hooks
+		$this->hooks->apps_destruct($this);
+
 		ob_end_flush();
 	}
 }
