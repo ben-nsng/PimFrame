@@ -51,6 +51,12 @@ include BASE_DIR . '/application/config/hooks.php';
 $this->config->set('hooks', $hooks);
 $this->hooks = new PF_Hooks($this->config->get('hooks'));
 
+// ** Create Paginator ** //
+//$this->paginator = new PF_Paginator;
+
+// ** Create Url ** //
+$this->url = new PF_Url;
+
 // ** LOADING COMPONENT ** //
 
 $this->service->_load('config');
@@ -63,15 +69,22 @@ $this->service->_load('upload');
 //$this->service->_load('i18n');
 $this->service->_load('form');
 $this->service->_load('hooks');
+//$this->service->_load('paginator');
+$this->service->_load('url');
 
 // --** USER DEFINED MODULES **-- //
 // includes 'session', 'database'
 $modules = $this->config->get('config')['modules'];
+$this->service->load_modules($modules);
 
-foreach($modules as $module) {
-	$module_name = 'PF_' . $module;
-	$this->$module = new $module_name;
-	$this->service->_load($module);
-	if(method_exists($this->$module, 'load'))
-		$this->$module->load();
-}
+// --** USER DEFINED HELPERS **-- //
+$helpers = $this->config->get('config')['helpers'];
+$this->service->load_helpers($helpers);
+
+// --** USER DEFINED LIBRARIES **-- //
+$libraries = $this->config->get('config')['libraries'];
+$this->service->load_libraries($libraries);
+
+// --** USER DEFINED ADAPTERS **-- //
+$adapters = $this->config->get('config')['adapters'];
+$this->service->load_adapters($adapters);

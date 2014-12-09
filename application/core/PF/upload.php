@@ -34,7 +34,7 @@ class PF_Upload_File {
 
 	public function set_file($name, $i = -1) {
 		$this->name = $name;
-		if(isset($_FILES[$this->name]))
+		if(isset($_FILES[$this->name])) {
 			if($i == -1) $this->handle = $_FILES[$this->name];
 			else $this->handle = array(
 				'name' => $_FILES[$this->name]['name'][$i],
@@ -43,6 +43,16 @@ class PF_Upload_File {
 				'error' => $_FILES[$this->name]['error'][$i],
 				'size' => $_FILES[$this->name]['size'][$i]
 				);
+		}
+		else if(preg_match('/([a-zA-Z0-9]+)\[([a-zA-Z0-9]+)\]/', $name, $m)) {
+			$this->handle = array(
+				'name' => $_FILES[$m[1]]['name'][$m[2]],
+				'type' => $_FILES[$m[1]]['type'][$m[2]],
+				'tmp_name' => $_FILES[$m[1]]['tmp_name'][$m[2]],
+				'error' => $_FILES[$m[1]]['error'][$m[2]],
+				'size' => $_FILES[$m[1]]['size'][$m[2]]
+				);
+		}
 		return $this;
 	}
 

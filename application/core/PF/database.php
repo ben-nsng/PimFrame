@@ -44,12 +44,9 @@ class PF_Database {
 		return $this->pdo->quote($str);
 	}
 
-	public function paginate() {
-		$page = intval($this->request->get('page'));
-		$limit = intval($this->request->get('limit'));
-		
+	public function paginate($page, $limit, $offset = 0) {
 		if($page && $limit)
-			$this->sql_paginate = ' LIMIT ' . $limit * ($page - 1) . ', ' . $limit;
+			$this->sql_paginate = ' LIMIT ' . ($limit * ($page - 1) + $offset) . ', ' . $limit;
 		return $this;
 	}
 

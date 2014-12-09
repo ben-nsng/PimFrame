@@ -6,6 +6,7 @@ else
 	define('ENVIRONMENT', 'production');
 
 define('BASE_DIR', __DIR__);
+define('BASEDIR', __DIR__);
 define('HOSTNAME', isset($host_name) ? $host_name : '/');
 
 switch(ENVIRONMENT) {
@@ -21,7 +22,7 @@ switch(ENVIRONMENT) {
 //check if the call is restful or in-app usage
 define('IS_RESTFUL_CALL', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 define('IS_PATH_REWRITE', count(get_included_files()) == 1);
-require 'application/core/apps.php';
+include 'application/core/apps.php';
 
 if(IS_RESTFUL_CALL) echo json_encode($apps->run());
 else if(IS_PATH_REWRITE) echo $apps->run();

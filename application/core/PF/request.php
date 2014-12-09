@@ -83,8 +83,13 @@ class PF_Request {
 	public function rewrite_pathinfo() {
 		if(!isset($_SERVER['PATH_INFO'])) {
 			$_SERVER['PATH_INFO'] = $_SERVER['QUERY_STRING'];
-			if(($pos = strpos($_SERVER['REQUEST_URI'], '?')) !== false)
+			if(($pos = strpos($_SERVER['REQUEST_URI'], '?')) !== false) {
 				$_SERVER['QUERY_STRING'] = substr($_SERVER['REQUEST_URI'], $pos + 1);
+
+				$parameters = array();
+				parse_str($_SERVER['QUERY_STRING'], $parameters);
+				$this->gets = $parameters;
+			}
 		}
 	}
 
@@ -98,6 +103,7 @@ class PF_Request {
 		// first of all, pull the GET vars
 		if (isset($_SERVER['QUERY_STRING'])) {
 			parse_str($_SERVER['QUERY_STRING'], $parameters);
+
 		}
 		$this->gets = $parameters;
 

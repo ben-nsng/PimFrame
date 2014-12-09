@@ -5,7 +5,7 @@ class PF_Controller {
 	private $instance;
 
 	public function __construct() {
-		$this->instance = Apps::$instance;
+		$this->instance = Apps::getInstance();
 
 		$this->load();
 	}

@@ -21,6 +21,10 @@ function apiAutoload($classname)
 			return true;
 		}
 	}
+	else if(file_exists(BASE_DIR . '/application/libraries/' . $classname . '.php')) {
+		include BASE_DIR . '/application/libraries/' . $classname . '.php';
+		return true;
+	}
 
 	return false;
 }

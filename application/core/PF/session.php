@@ -2,6 +2,8 @@
 
 class PF_Session {
 
+	private $flash_sess = array();
+
 	public function __construct() {
 	}
 
@@ -11,6 +13,8 @@ class PF_Session {
 		else $is_init = !(session_id() == '');
 
 		if(!$is_init) session_start();
+
+
 	}
 
 	public function set($key, $val) {
@@ -24,6 +28,10 @@ class PF_Session {
 
 	public function remove($key) {
 		unset($_SESSION[$key]);
+	}
+
+	public function flash($key, $val) {
+		
 	}
 
 }

@@ -1,25 +1,28 @@
 <?php
 
-require BASE_DIR . '/application/core/autoload.php';
+include BASE_DIR . '/application/core/autoload.php';
 
 class Apps {
 
-	public static $instance;
+	private static $instance = null;
 
 	public static function getInstance() {
+		if(Apps::$instance == null) {
+			Apps::$instance = new Apps;
+		}
 		return Apps::$instance;
 	}
 
 	public $controller;
 	private $stime;
 
-	public function __construct() {
-
+	private function __construct() {
 		self::$instance = $this;
+
 		$this->stime = microtime(true);
 
-		//require IoC
-		require BASE_DIR . '/application/core/PF.php';
+		//include IoC
+		include BASE_DIR . '/application/core/PF.php';
 
 		//buffering output
 		ob_start(array($this, "output"));
@@ -31,6 +34,7 @@ class Apps {
 		};
 		$this->response->add_parser($this->post_parse);
 
+		//hooks
 		$this->hooks->apps_construct($this);
 	}
 
@@ -90,10 +94,10 @@ class Apps {
 	public function __destruct() {
 		//hooks
 		$this->hooks->apps_destruct($this);
-
+		//ob output
 		ob_end_flush();
 	}
 }
 
 //create global apps
-$apps = new Apps;
+$apps = Apps::getInstance();
