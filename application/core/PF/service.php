@@ -88,6 +88,8 @@ class PF_Service {
 					if(class_exists($class)) {
 						$this->instance->$lclass = new $class;
 						$this->instance->service->_load($lclass);
+						if(method_exists($this->instance->$lclass, 'load'))
+							$this->instance->$lclass->load();
 					}
 				}
 			}

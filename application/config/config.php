@@ -5,12 +5,15 @@ $config['controller'] = 'home';
 $config['adapters'] = array(
 	'paginator' => array(
 		'custom'
+		),
+	'session' => array(
+		'cookie',
+		//'database'
 		)
 	);
 
 $config['modules'] = array(
-	//'session',
-	//'database'
+	'database'
 	);
 
 $config['libraries'] = array(

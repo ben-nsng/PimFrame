@@ -1,37 +1,18 @@
 <?php
 
-class PF_Session {
+abstract class PF_Session {
 
-	private $flash_sess = array();
+	protected $flash_key = '__PF_FLASH__';
 
 	public function __construct() {
 	}
 
-	public function load() {
-		$is_init = false;
-		if(function_exists('session_status')) $is_init = !(session_status() == PHP_SESSION_NONE);
-		else $is_init = !(session_id() == '');
-
-		if(!$is_init) session_start();
-
-
-	}
-
-	public function set($key, $val) {
-		$_SESSION[$key] = $val;
-	}
-
-	public function get($key) {
-		if(isset($_SESSION[$key])) return $_SESSION[$key];
-		return false;
-	}
-
-	public function remove($key) {
-		unset($_SESSION[$key]);
-	}
-
-	public function flash($key, $val) {
-		
-	}
+	abstract function load();
+	abstract function set($key, $val);
+	abstract function get($key);
+	abstract function remove($key);
+	abstract function flash($key, $val);
 
 }
+
+?>
