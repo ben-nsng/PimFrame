@@ -1,8 +1,16 @@
 <?php
 
-class PF_Hooks {
+class PF_Hook {
 
-	public function __construct($hooks) {
+	private $apps = null;
+
+	public function __construct($apps) {
+		$this->apps = $apps;
+	}
+
+	public function load($apps) {
+		$hooks = $this->apps->config->get('hook');
+
 		foreach($hooks as $name => $callback) {
 			$this->$name = $callback;
 		}

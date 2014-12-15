@@ -1,14 +1,20 @@
 <?php
 
-class PF_Security {
+class PF_Crypt {
 	
 	private $salt;
 	private $key;
 	private $iv;
 
-	public function __construct($config) {
-		$this->salt = $config['salt'];
-		$this->key = $config['aeskey'];
+	public function __construct() {
+	}
+
+	public function load($apps) {
+		//get the crypt config
+		$crypt 			= $apps->config->get('crypt');
+
+		$this->salt 	= $crypt['salt'];
+		$this->key 		= $crypt['salt'];
 	}
 
 	public function encrypt($message, $useiv = false) {

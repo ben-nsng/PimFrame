@@ -10,7 +10,7 @@ class PF_Response {
 	private $html_post;
 
 
-	public function __construct() {
+	public function __construct($apps) {
 		$this->parsers = array();
 		$this->messages = array();
 		$this->is_error_404 = false;
@@ -20,8 +20,8 @@ class PF_Response {
 
 		//create parser for debug and clean up
 		$self = $this;
-		$this->post_parse = function(&$body) use($self) {
-			if(ENVIRONMENT == 'development') $body = preg_replace('/\$debug/', $self->debug->get_message(), $body);
+		$this->post_parse = function(&$body) use($self, $apps) {
+			if(ENVIRONMENT == 'development') $body = preg_replace('/\$debug/', $apps->debug->get_message(), $body);
 			if(IS_RESTFUL_CALL) {
 				if($self->is_error_404) $body = json_encode(array('error' => 'The page does not exist!'));
 				if($body === NULL) $body = json_encode(array());
@@ -29,6 +29,8 @@ class PF_Response {
 		};
 		$this->add_parser($this->post_parse);
 	}
+
+	// ** routing ** //
 
 	public function error_404() {
 		$this->is_error_404 = true;
@@ -56,6 +58,25 @@ class PF_Response {
 		return $apps->run($page);
 	}
 
+	// ** message ** //
+
+	public function message($key, $message = '') {
+		if($message == '') {
+			if(isset($this->messages[$key]))
+				return $this->messages[$key];
+			else
+				return false;
+		}
+		else $this->messages[$key] = $message;
+	}
+
+	public function get_last_message() {
+		if(count($this->messages) > 0) return $this->messages[count($this->messages) - 1];
+		return null;
+	}
+
+	// ** parser ** //
+
 	public function add_parser($parser) {
 		$this->parsers[] = $parser;
 	}
@@ -72,19 +93,18 @@ class PF_Response {
 		return $body;
 	}
 
-	public function message($key, $message = '') {
-		if($message == '') {
-			if(isset($this->messages[$key]))
-				return $this->messages[$key];
-			else
-				return false;
-		}
-		else $this->messages[$key] = $message;
+	// ** ob buffering ** //
+
+	public function load() {
+		ob_start(array($this, "output"));
 	}
 
-	public function get_last_message() {
-		if(count($this->messages) > 0) return $this->messages[count($this->messages) - 1];
-		return null;
+	public function unload() {
+		ob_end_flush();
+	}
+
+	private function output($buffer) {
+		return $this->parse($buffer);
 	}
 
 }

@@ -2,12 +2,15 @@
 
 class PF_Request {
 
-	public $url_elements;
-	public $verb;
+	private $url_elements;
+	private $verb;
 	private $verbs = array('get', 'post', 'put', 'delete');
 	private $parsed;
+	private $apps = null;
 
-	public function __construct() {
+	public function __construct($apps) {
+		$this->apps = $apps;
+
 		// initialize params array
 		$this->clear();
 
@@ -28,11 +31,17 @@ class PF_Request {
 		}
 	}
 
+	// ** GET POST PUT DELETE ** //
+
 	public function clear() {
 		foreach($this->verbs as $verb) {
 			$verb .= 's';
 			$this->$verb = array();
 		}
+	}
+
+	public function get_request_verb() {
+		return $this->verb;
 	}
 
 	public function set_verb($verb) {
@@ -69,6 +78,8 @@ class PF_Request {
 		}
 	}
 
+	// ** PATH INFO ROUTING ** //
+
 	public function set_pathinfo($path_info = '') {
 		if($path_info != '')
 			$this->url_elements = explode('/', $path_info);
@@ -77,7 +88,9 @@ class PF_Request {
 		else if(IS_PATH_REWRITE) {
 			$this->rewrite_pathinfo();
 			$this->set_pathinfo();
+			return;
 		}
+		array_shift($this->url_elements);
 	}
 
 	public function rewrite_pathinfo() {
@@ -143,8 +156,10 @@ class PF_Request {
 			$verb = $this->verb . 's';
 			$this->$verb = $parameters;
 		}
+	}
 
-		
+	public function get_url_elements() {
+		return $this->url_elements;
 	}
 
 }

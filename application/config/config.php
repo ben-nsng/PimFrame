@@ -22,4 +22,7 @@ $config['libraries'] = array(
 $config['helpers'] = array(
 	);
 
+$config['models'] = array(
+	);
+
 ?>

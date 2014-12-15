@@ -8,7 +8,7 @@ class PF_Storage {
 	public function __construct() {
 	}
 
-	public function load($path = '/', $file_name = '') {
+	public function load_file($path = '/', $file_name = '') {
 		$path = $this->get_storage_path($path);
 		if(file_exists($path . $file_name)) return file_get_contents($path . $file_name);
 		return null;

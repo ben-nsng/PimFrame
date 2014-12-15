@@ -1,6 +1,6 @@
 <?php
 
-class PF_Model {
+abstract class PF_Model {
 
 	private $instance;
 
@@ -9,9 +9,9 @@ class PF_Model {
 
 		$this->load();
 	}
-	
+
 	private function load() {
-		$this->instance->service->loading($this);
+		$this->instance->module->model($this);
 	}
 
 }

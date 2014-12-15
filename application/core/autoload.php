@@ -9,12 +9,6 @@ function apiAutoload($classname)
 			return true;
 		}
 	}
-	else if (preg_match('/[a-zA-Z0-9\_]+Controller$/', $classname)) {
-		if(file_exists(BASE_DIR . '/application/controllers/' . $classname . '.php')) {
-			include BASE_DIR . '/application/controllers/' . $classname . '.php';
-			return true;
-		}
-	}
 	else if (preg_match('/[a-zA-Z0-9\_]+Model$/', $classname)) {
 		if(file_exists(BASE_DIR . '/application/models/' . $classname . '.php')) {
 			include BASE_DIR . '/application/models/' . $classname . '.php';
@@ -24,6 +18,12 @@ function apiAutoload($classname)
 	else if(file_exists(BASE_DIR . '/application/libraries/' . $classname . '.php')) {
 		include BASE_DIR . '/application/libraries/' . $classname . '.php';
 		return true;
+	}
+	else if (preg_match('/[a-zA-Z0-9\_]+$/', $classname)) {
+		if(file_exists(BASE_DIR . '/application/controllers/' . str_replace('_', '/', strtolower($classname)) . '.php')) {
+			include BASE_DIR . '/application/controllers/' . str_replace('_', '/', strtolower($classname)) . '.php';
+			return true;
+		}
 	}
 
 	return false;

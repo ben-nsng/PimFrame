@@ -25,8 +25,8 @@ class PF_Database {
 		}
 	}
 
-	public function load() {
-		$config = $this->config->get('database');
+	public function load($apps) {
+		$config = $apps->config->get('database');
 		$config = $config[$config['choice']];
 
 		$this->conn_str = $config['dbdriver'] . ':host=' . $config['hostname'] . ';dbname=' . $config['database'];
@@ -36,7 +36,7 @@ class PF_Database {
 		if(!isset($this->pdo)) {
 			$this->pdo = new PDO($this->conn_str, $this->usr, $this->pass);
 			$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$this->hooks->post_db_conn(Apps::getInstance());
+			$apps->hook->post_db_conn(Apps::getInstance());
 		}
 	}
 

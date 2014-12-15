@@ -1,6 +1,6 @@
 <?php
 
-class PF_Controller {
+abstract class PF_Controller {
 
 	private $instance;
 
@@ -11,7 +11,7 @@ class PF_Controller {
 	}
 
 	private function load() {
-		$this->instance->service->loading($this);
+		$this->instance->module->controller($this);
 	}
 
 	public function __call($method_name, $args) {
