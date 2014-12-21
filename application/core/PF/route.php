@@ -36,6 +36,8 @@ class PF_Route {
 				$this->controller = ucfirst($elems[0]);
 
 				//check if the method exists in the controller
+				if($this->check_route($elems[0], isset($elems[1]) ? $elems[1] : 'index', $elems, 1)) return;
+				/*
 				if(isset($elems[1]) && $method_name = ($this->check_method_exists($elems[0], $elems[1]))) {
 					$this->method = $method_name;
 					$this->args = array_slice($elems, 2);
@@ -47,7 +49,7 @@ class PF_Route {
 					$this->args = array_slice($elems, 1);
 					return;
 				}
-				
+				*/
 			}
 			else {
 				//otherwise, use default controller
@@ -56,6 +58,9 @@ class PF_Route {
 				if(class_exists($controller)) {
 					$this->controller = ucfirst($controller);
 
+					if($this->check_route($controller, isset($elems[0]) ? $elems[0]: 'index', $elems, 0)) return;
+
+					/*
 					if(isset($elems[0]) && $method_name = ($this->check_method_exists($controller, $elems[0]))) {
 						$this->method = $method_name;
 						$this->args = array_slice($elems, 1);
@@ -66,6 +71,7 @@ class PF_Route {
 						$this->args = array_slice($elems, 0);
 						return;
 					}
+					*/
 				}
 			}
 		}
@@ -76,6 +82,9 @@ class PF_Route {
 
 				$this->controller = $controller . ucfirst($elems[$i++]);
 
+				if($this->check_route($this->controller, isset($elems[$i]) ? $elems[$i] : 'index', $elems, $i)) return;
+
+				/*
 				if(isset($elems[$i]) && $method_name = ($this->check_method_exists($this->controller, $elems[$i]))) {
 					$this->method = $method_name;
 					$this->args = array_slice($elems, $i++);
@@ -86,6 +95,7 @@ class PF_Route {
 					$this->args = array_slice($elems, $i);
 					return;
 				}
+				*/
 
 			}
 		}
@@ -126,6 +136,20 @@ class PF_Route {
 
 	public function get_args() {
 		return $this->args;
+	}
+
+	private function check_route($controller, $method, $elems, $i) {
+		if($method_name = ($this->check_method_exists($controller, $method))) {
+			$this->method = $method_name;
+			$this->args = array_slice($elems, $i++);
+			return true;
+		}
+		else if($method_name = ($this->check_method_exists($this->controller, 'index'))) {
+			$this->method = $method_name;
+			$this->args = array_slice($elems, $i);
+			return true;
+		}
+		return false;
 	}
 
 	private function check_method_exists($func, $method) {
