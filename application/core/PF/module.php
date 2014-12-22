@@ -28,26 +28,6 @@ class PF_Module {
 		foreach($modules as $module) {
 			$this->module($module);
 		}
-
-		//load models
-		$configs = $this->apps->config->get('config');
-		foreach($configs['models'] as $model)
-			$this->model_preload($model);
-
-		//load helpers
-		foreach($configs['helpers'] as $helper)
-			$this->helper($helper);
-
-		//load library
-		foreach($configs['libraries'] as $library)
-			$this->library($library);
-
-		//load modules
-		foreach($configs['modules'] as $module)
-			$this->module($module);
-
-		//load adapters
-		$this->adapters($configs['adapters']);
 	}
 
 	public function module($module) {
@@ -59,7 +39,34 @@ class PF_Module {
 	}
 
 	public function controller($con) {
-		$this->controller = $con;
+		if($this->controller == null) {
+			$this->controller = $con;
+
+			//load models
+			$configs = $this->apps->config->get('config');
+			foreach($configs['models'] as $model)
+				$this->model_preload($model);
+
+			//load helpers
+			foreach($configs['helpers'] as $helper)
+				$this->helper($helper);
+
+			//load library
+			foreach($configs['libraries'] as $library)
+				$this->library($library);
+
+			//load modules
+			foreach($configs['modules'] as $module)
+				$this->module($module);
+
+			//load adapters
+			$this->adapters($configs['adapters']);
+		}
+		else {
+			$this->controller = $con;
+		}
+
+		
 		$con->load = new PF_Loader($this->apps);
 
 		$modules = $this->modules;
@@ -124,6 +131,8 @@ class PF_Module {
 						$this->apps->$lclass = new $class;
 						if(method_exists($this->apps->$lclass, 'load'))
 							$this->apps->$lclass->load();
+
+						$this->controller->$lclass = $this->apps->$lclass;
 					}
 				}
 			}
