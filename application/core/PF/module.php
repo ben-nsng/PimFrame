@@ -14,15 +14,8 @@ class PF_Module {
 				'benchmark',
 				'request',
 				'route',
-				'debug',
 				'response',
 				'config',
-				'crypt',
-				'storage',
-				'upload',
-				'form',
-				'hook',
-				'url'
 				);
 
 	public function __construct($apps) {

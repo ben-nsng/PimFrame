@@ -13,18 +13,20 @@ class Apps {
 		return Apps::$instance;
 	}
 
-	public $controller;
+	public $controller = null;
 
 	private function __construct() {
 		self::$instance = $this;
 
+		//this component help create other component, eg: helper, library, model
 		$this->module = new PF_Module($this);
 
 		//register all the modules into our apps
 		$this->module->registers();
 
 		//hook
-		$this->hook->apps_construct($this);
+		if(isset($this->hook))
+			$this->hook->apps_construct($this);
 	}
 
 	public function run($route = '') {
@@ -37,7 +39,8 @@ class Apps {
 
 	public function __destruct() {
 		//hook
-		$this->hook->apps_destruct($this);
+		if(isset($this->hook))
+			$this->hook->apps_destruct($this);
 
 		$this->module->unregisters();
 	}

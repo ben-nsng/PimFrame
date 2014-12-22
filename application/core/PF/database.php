@@ -36,7 +36,8 @@ class PF_Database {
 		if(!isset($this->pdo)) {
 			$this->pdo = new PDO($this->conn_str, $this->usr, $this->pass);
 			$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$apps->hook->post_db_conn(Apps::getInstance());
+			if(isset($apps->hook))
+				$apps->hook->post_db_conn(Apps::getInstance());
 		}
 	}
 

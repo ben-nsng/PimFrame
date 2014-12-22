@@ -4,16 +4,23 @@ $config['controller'] = 'home';
 
 $config['adapters'] = array(
 	'paginator' => array(
-		'custom'
+		//'custom'
 		),
 	'session' => array(
-		'cookie',
+		//'cookie',
 		//'database'
 		)
 	);
 
 $config['modules'] = array(
-	'database'
+	//'crypt',
+	//'storage',
+	//'upload',
+	//'form',
+	//'hook',
+	//'url',
+	//'database',
+	//'debug',
 	);
 
 $config['libraries'] = array(
