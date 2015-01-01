@@ -26,56 +26,7 @@ class PF_Route {
 				break;
 		}
 
-		//no matched controller inside folder
-		if($controller == '') {
-
-			//check if request controller exists
-			if(count($elems) > 0 && class_exists($elems[0])) {
-
-				//get the controller name first
-				$this->controller = ucfirst($elems[0]);
-
-				//check if the method exists in the controller
-				if($this->check_route($elems[0], isset($elems[1]) ? $elems[1] : 'index', $elems, 1)) return;
-				/*
-				if(isset($elems[1]) && $method_name = ($this->check_method_exists($elems[0], $elems[1]))) {
-					$this->method = $method_name;
-					$this->args = array_slice($elems, 2);
-					return;
-				}
-				//check if 'index' exists in the controller
-				else if($method_name = ($this->check_method_exists($elems[0], 'index'))) {
-					$this->method = $method_name;
-					$this->args = array_slice($elems, 1);
-					return;
-				}
-				*/
-			}
-			else {
-				//otherwise, use default controller
-				$controller = $this->apps->config->get('config')['controller']; //default controller
-
-				if(class_exists($controller)) {
-					$this->controller = ucfirst($controller);
-
-					if($this->check_route($controller, isset($elems[0]) ? $elems[0]: 'index', $elems, 0)) return;
-
-					/*
-					if(isset($elems[0]) && $method_name = ($this->check_method_exists($controller, $elems[0]))) {
-						$this->method = $method_name;
-						$this->args = array_slice($elems, 1);
-						return;
-					}
-					else if($method_name = ($this->check_method_exists($controller, 'index'))) {
-						$this->method = $method_name;
-						$this->args = array_slice($elems, 0);
-						return;
-					}
-					*/
-				}
-			}
-		}
-		else {
+		if($controller != '') {
 			//matched controller inside folder
 			//var_dump($controller . $elems[$i]);
 			if(isset($elems[$i]) && class_exists($controller . $elems[$i])) {
@@ -97,6 +48,53 @@ class PF_Route {
 				}
 				*/
 
+			}
+		}
+
+		//no matched controller inside folder or no matched method inside folder
+		//check if request controller exists
+		if(count($elems) > 0 && class_exists($elems[0])) {
+
+			//get the controller name first
+			$this->controller = ucfirst($elems[0]);
+
+			//check if the method exists in the controller
+			if($this->check_route($elems[0], isset($elems[1]) ? $elems[1] : 'index', $elems, 1)) return;
+			/*
+			if(isset($elems[1]) && $method_name = ($this->check_method_exists($elems[0], $elems[1]))) {
+				$this->method = $method_name;
+				$this->args = array_slice($elems, 2);
+				return;
+			}
+			//check if 'index' exists in the controller
+			else if($method_name = ($this->check_method_exists($elems[0], 'index'))) {
+				$this->method = $method_name;
+				$this->args = array_slice($elems, 1);
+				return;
+			}
+			*/
+		}
+		else {
+			//otherwise, use default controller
+			$controller = $this->apps->config->get('config')['controller']; //default controller
+
+			if(class_exists($controller)) {
+				$this->controller = ucfirst($controller);
+
+				if($this->check_route($controller, isset($elems[0]) ? $elems[0]: 'index', $elems, 0)) return;
+
+				/*
+				if(isset($elems[0]) && $method_name = ($this->check_method_exists($controller, $elems[0]))) {
+					$this->method = $method_name;
+					$this->args = array_slice($elems, 1);
+					return;
+				}
+				else if($method_name = ($this->check_method_exists($controller, 'index'))) {
+					$this->method = $method_name;
+					$this->args = array_slice($elems, 0);
+					return;
+				}
+				*/
 			}
 		}
 
