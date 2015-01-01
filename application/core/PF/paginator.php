@@ -34,6 +34,8 @@ abstract class PF_Paginator {
 
 	//set current page number
 	public function set_page($page) {
+		if(!is_numeric($page)) $page = 1;
+		
 		$this->info[$this->nsp]['page'] = $page;
 	}
 

@@ -27,6 +27,7 @@ class PF_Loader {
 	public function view($view, $data = array(), $exports = false) {
 		if($exports) ob_start();
 
+		extract($GLOBALS, EXTR_OVERWRITE);
 		extract($data, EXTR_OVERWRITE);
 
 		chdir(BASE_DIR . '/application/views');

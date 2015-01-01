@@ -46,6 +46,8 @@ class PF_Database {
 	}
 
 	public function paginate($page, $limit, $offset = 0) {
+		if(!is_numeric($page)) $page = 1;
+
 		if($page && $limit)
 			$this->sql_paginate = ' LIMIT ' . ($limit * ($page - 1) + $offset) . ', ' . $limit;
 		return $this;

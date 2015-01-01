@@ -44,7 +44,7 @@ class PF_Upload_File {
 				'size' => $_FILES[$this->name]['size'][$i]
 				);
 		}
-		else if(preg_match('/([a-zA-Z0-9]+)\[([a-zA-Z0-9]+)\]/', $name, $m)) {
+		else if(preg_match('/([a-zA-Z0-9]+)\[([a-zA-Z0-9]+)\]/', $name, $m) && isset($_FILES[$m[1]]['name'][$m[2]])) {
 			$this->handle = array(
 				'name' => $_FILES[$m[1]]['name'][$m[2]],
 				'type' => $_FILES[$m[1]]['type'][$m[2]],
