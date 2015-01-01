@@ -7,12 +7,15 @@ class Database_Session extends PF_Session {
 	private $flash_cookies = array();
 	private $need_insert = false;
 	private $need_update = false;
+	private $apps = null;
 
-	public function __construct() {
+	public function __construct($apps) {
 		parent::__construct();
+		$this->apps = $apps;
 	}
 
 	public function load() {
+
 		if(isset($_COOKIE['pf_cookie'])) {
 			$this->pf_id = $_COOKIE['pf_cookie'];
 
@@ -21,7 +24,7 @@ class Database_Session extends PF_Session {
 
 			//check if the record exists, if not reset it
 			$sql = 'SELECT id, cookie_value FROM pf_session WHERE id=? AND user_agent=? AND ip_addr=?';
-			$query = $this->database->execute($sql, array($this->pf_id, $this->get_ua(), $this->get_ip()));
+			$query = $this->apps->database->execute($sql, array($this->pf_id, $this->get_ua(), $this->get_ip()));
 			if($query->num_rows() == 0) $this->pf_id = $this->make_id();
 			else {
 				$this->cookies = json_decode($query->result()[0]->cookie_value, true);
@@ -69,11 +72,11 @@ class Database_Session extends PF_Session {
 
 	public function __destruct() {
 		if($this->need_insert) {
-			$this->database->execute('INSERT INTO pf_session(id, user_agent, ip_addr, cookie_value) VALUES(?, ?, ?, ?)', 
+			$this->apps->database->execute('INSERT INTO pf_session(id, user_agent, ip_addr, cookie_value) VALUES(?, ?, ?, ?)', 
 				array($this->pf_id, $this->get_ua(), $this->get_ip(), json_encode($this->cookies)));
 		}
 		else if($this->need_update) {
-			$this->database->execute('UPDATE pf_session SET cookie_value=? WHERE id=? AND user_agent=? AND ip_addr=?',
+			$this->apps->database->execute('UPDATE pf_session SET cookie_value=? WHERE id=? AND user_agent=? AND ip_addr=?',
 				array(json_encode($this->cookies), $this->pf_id, $this->get_ua(), $this->get_ip()));
 		}
 	}
@@ -88,8 +91,8 @@ class Database_Session extends PF_Session {
 
 	private function make_id() {
 		do {
-			$id = hash('sha512', $this->config->get('salt') . microtime());
-		} while($this->database->execute('SELECT 1 FROM pf_session WHERE id=?', $id)->num_rows() != 0);
+			$id = hash('sha512', $this->apps->config->get('crypt')['salt'] . microtime());
+		} while($this->apps->database->execute('SELECT 1 FROM pf_session WHERE id=?', $id)->num_rows() != 0);
 
 		$this->need_insert = true;
 		setcookie('pf_cookie', $id, time() + (86400 * 30), '/');

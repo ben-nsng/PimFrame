@@ -128,7 +128,7 @@ class PF_Module {
 					$class = ucfirst($class) . '_' . ucfirst($adapter_name);
 					$lclass = strtolower($class);
 					if(class_exists($class)) {
-						$this->apps->$lclass = new $class;
+						$this->apps->$lclass = new $class($this->apps);
 						if(method_exists($this->apps->$lclass, 'load'))
 							$this->apps->$lclass->load();
 
