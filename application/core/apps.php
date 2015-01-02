@@ -7,16 +7,13 @@ class Apps {
 	private static $instance = null;
 
 	public static function getInstance() {
-		if(Apps::$instance == null) {
-			Apps::$instance = new Apps;
-		}
 		return Apps::$instance;
 	}
 
 	public $controller = null;
 
-	private function __construct() {
-		self::$instance = $this;
+	public function __construct() {
+		$GLOBALS['apps'] = self::$instance = &$this;
 
 		//this component help create other component, eg: helper, library, model
 		$this->module = new PF_Module($this);
@@ -47,4 +44,4 @@ class Apps {
 }
 
 //create global apps
-$apps = Apps::getInstance();
+new Apps;

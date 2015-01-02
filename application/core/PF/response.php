@@ -10,27 +10,34 @@ class PF_Response {
 	private $html_post;
 
 
-	public function __construct($apps) {
+	public function __construct() {
 		$this->parsers = array();
 		$this->messages = array();
 		$this->is_error_404 = false;
 		$this->is_redirect = false;
 		$this->is_post = false;
 		$this->html_post = '';
+	}
 
+	public function load() {
 		//create parser for debug and clean up
+		global $apps;
+
 		$self = $this;
-		$this->post_parse = function(&$body) use($self, $apps) {
+		$this->add_parser(function(&$body) use($self, $apps) {
 			if(ENVIRONMENT == 'development') {
-				if(isset($apps->debug))
-					$body = preg_replace('/\$debug/', $apps->debug->get_message(), $body);
+				if(isset($apps->debug)) {
+					$debug = $apps->debug;
+					$body = preg_replace('/\$debug/', $debug->get_message(), $body);
+				}
 			}
 			if(IS_RESTFUL_CALL) {
 				if($self->is_error_404) $body = json_encode(array('error' => 'The page does not exist!'));
 				if($body === NULL) $body = json_encode(array());
 			}
-		};
-		$this->add_parser($this->post_parse);
+		});
+
+		ob_start(array($this, "output"));
 	}
 
 	// ** routing ** //
@@ -97,10 +104,6 @@ class PF_Response {
 	}
 
 	// ** ob buffering ** //
-
-	public function load() {
-		ob_start(array($this, "output"));
-	}
 
 	public function unload() {
 		ob_end_flush();

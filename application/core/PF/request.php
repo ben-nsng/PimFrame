@@ -6,11 +6,8 @@ class PF_Request {
 	private $verb;
 	private $verbs = array('get', 'post', 'put', 'delete');
 	private $parsed;
-	private $apps = null;
 
-	public function __construct($apps) {
-		$this->apps = $apps;
-
+	public function __construct() {
 		// initialize params array
 		$this->clear();
 

@@ -3,11 +3,9 @@
 class Cookie_Session extends PF_Session {
 
 	private $flash_session = array();
-	private $apps = null;
 
-	public function __construct($apps) {
+	public function __construct() {
 		parent::__construct();
-		$this->apps = $apps;
 	}
 
 	public function load() {

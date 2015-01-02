@@ -25,8 +25,11 @@ class PF_Database {
 		}
 	}
 
-	public function load($apps) {
-		$config = $apps->config->get('database');
+	public function load() {
+		global $apps;
+		$config = $apps->config;
+		$hook = $apps->hook;
+		$config = $config->get('database');
 		$config = $config[$config['choice']];
 
 		$this->conn_str = $config['dbdriver'] . ':host=' . $config['hostname'] . ';dbname=' . $config['database'];
@@ -36,8 +39,8 @@ class PF_Database {
 		if(!isset($this->pdo)) {
 			$this->pdo = new PDO($this->conn_str, $this->usr, $this->pass);
 			$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			if(isset($apps->hook))
-				$apps->hook->post_db_conn(Apps::getInstance());
+			if(isset($hook))
+				$hook->post_db_conn(Apps::getInstance());
 		}
 	}
 
@@ -89,7 +92,6 @@ class PF_Database {
 	}
 
 	public function rollback() {
-		$this->debug->trace();
 		//not allow if the scope is not in transaction
 		if(!$this->is_trans) return;
 		//transaction has error, rollback transaction in next trans_end
@@ -157,13 +159,15 @@ class PF_Database {
 			return $query;
 		}
 		catch (PDOException $e) {
-			$this->debug->trace();
-			$this->debug->log('--PDOException Message--');
-			$this->debug->log($e->getMessage(), true);
-			$this->debug->log('--PDO SQL Statement--');
-			$this->debug->log($sql, true);
-			$this->debug->log('--PDO placeholders Info--');
-			$this->debug->log($placeholders, true);
+			global $apps;
+			$debug = $apps->debug;
+			$debug->log('--PDOException Message--');
+			$debug->log($e->getMessage(), true);
+			$debug->log('--PDO SQL Statement--');
+			$debug->log($sql, true);
+			$debug->log('--PDO placeholders Info--');
+			$debug->log($placeholders, true);
+			$debug->trace();
 			$this->rollback();
 			
 			//reset paginate

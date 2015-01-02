@@ -7,11 +7,11 @@ abstract class PF_Session {
 	public function __construct() {
 	}
 
-	abstract function load();
-	abstract function set($key, $val);
-	abstract function get($key);
-	abstract function remove($key);
-	abstract function flash($key, $val);
+	abstract protected function load();
+	abstract protected function set($key, $val);
+	abstract protected function get($key);
+	abstract protected function remove($key);
+	abstract protected function flash($key, $val);
 
 }
 

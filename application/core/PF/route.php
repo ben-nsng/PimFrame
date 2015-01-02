@@ -2,13 +2,11 @@
 
 class PF_Route {
 
-	private $apps = null;
 	private $controller = null;
 	private $method = null;
 	private $args = null;
 
-	public function __construct($apps) {
-		$this->apps = $apps;
+	public function __construct() {
 	}
 
 	public function set_route($elems) {
@@ -75,8 +73,10 @@ class PF_Route {
 			*/
 		}
 		else {
+			global $apps;
+			$config = $apps->config;
 			//otherwise, use default controller
-			$controller = $this->apps->config->get('config')['controller']; //default controller
+			$controller = $config->get('config')['controller']; //default controller
 
 			if(class_exists($controller)) {
 				$this->controller = ucfirst($controller);
@@ -151,7 +151,10 @@ class PF_Route {
 	}
 
 	private function check_method_exists($func, $method) {
-		if(method_exists($func, $method_name = ($method . '_' . strtolower($this->apps->request->get_request_verb())))) return $method_name;
+		global $apps;
+		$request = $apps->request;
+
+		if(method_exists($func, $method_name = ($method . '_' . strtolower($request->get_request_verb())))) return $method_name;
 		else if(method_exists($func, $method)) return $method;
 		return false;
 	}

@@ -9,12 +9,14 @@ class PF_Crypt {
 	public function __construct() {
 	}
 
-	public function load($apps) {
+	public function load() {
+		global $apps;
 		//get the crypt config
-		$crypt 			= $apps->config->get('crypt');
+		$config 		= $apps->config;
+		$crypt 			= $config->get('crypt');
 
 		$this->salt 	= $crypt['salt'];
-		$this->key 		= $crypt['salt'];
+		$this->key 		= $crypt['aeskey'];
 	}
 
 	public function encrypt($message, $useiv = false) {
