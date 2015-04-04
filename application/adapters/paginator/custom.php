@@ -8,12 +8,14 @@ class Custom_Paginator extends PF_Paginator {
 
 	//@override
 	public function prev($on, $lastpage) {
-		return 'Prev | ';
+		if($on) return '<a data-page="' . $lastpage . '" href="javascript:void(0)">Prev</a>&nbsp;&nbsp;|&nbsp;&nbsp;';
+		else return '<a href="javascript:void(0)">Prev</a>&nbsp;&nbsp;|&nbsp;&nbsp;';
 	}
 
 	//@override
 	public function page_num($on, $page) {
-		return ' ' . $page . ' ';
+		if($on) return '<a class="active" href="javascript:void(0)">' . $page . '</a>';
+		return '<a data-page="' . $page . '" href="javascript:void(0)">' . $page . '</a>';
 	}
 	
 	//@override
@@ -23,7 +25,8 @@ class Custom_Paginator extends PF_Paginator {
 	
 	//@override
 	public function next($on, $nextpage) {
-		return ' | Next';
+		if($on) return '&nbsp;&nbsp;|&nbsp;&nbsp;<a data-page="' . $nextpage . '" href="javascript:void(0)">Next</a>';
+		else return '&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:void(0)">Next</a>';
 	}
 	
 	//@override

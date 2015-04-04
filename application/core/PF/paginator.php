@@ -149,7 +149,7 @@ abstract class PF_Paginator {
 			$html .= $this->next(true, $this->page() + 1);
 		}
 		else {
-			$html .= $this->next(true, $this->page() + 1);
+			$html .= $this->next(false, $this->page() + 1);
 		}
 
 		return $html;

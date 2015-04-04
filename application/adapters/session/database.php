@@ -29,7 +29,8 @@ class Database_Session extends PF_Session {
 			$query = $this->database->execute($sql, array($this->pf_id, $this->get_ua(), $this->get_ip()));
 			if($query->num_rows() == 0) $this->pf_id = $this->make_id();
 			else {
-				$this->cookies = json_decode($query->result()[0]->cookie_value, true);
+				$result = $query->result();
+				$this->cookies = json_decode($result[0]->cookie_value, true);
 
 				if(isset($this->cookies[$this->flash_key])) {
 					$this->flash_cookies = $this->cookies[$this->flash_key];
@@ -92,8 +93,10 @@ class Database_Session extends PF_Session {
 	}
 
 	private function make_id() {
+		$crypt = $this->config->get('crypt');
+
 		do {
-			$id = hash('sha512', $this->config->get('crypt')['salt'] . microtime());
+			$id = hash('sha512', $crypt['salt'] . microtime());
 		} while($this->database->execute('SELECT 1 FROM pf_session WHERE id=?', $id)->num_rows() != 0);
 
 		$this->need_insert = true;

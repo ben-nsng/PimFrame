@@ -231,6 +231,19 @@ class PF_Database_Statement {
 		return array();
 	}
 
+	public function first() {
+		if($this->error) return null;
+
+		if($this->result != null) return $this->result;
+		if($this->stmt != null) {
+			$this->result = $this->stmt->fetchAll(PDO::FETCH_OBJ);
+
+			if($this->num_rows() > 0) return $this->result[0];
+			else return null;
+		}
+		return null;
+	}
+
 	public function result_array() {
 		if($this->error) return array();
 

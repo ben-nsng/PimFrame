@@ -75,10 +75,10 @@ class PF_Module {
 			$con->$adapter_name = $this->apps->$adapter_name;
 	}
 
+	private $i = 0;
+
 	public function model($model) {
-		// var_dump(get_class($model));
-		// var_dump($this->adapters);
-		// var_dump($this->models);
+		$new_model_name = get_class($model);
 
 		$model->load = new PF_Loader($this->apps);
 
@@ -88,23 +88,28 @@ class PF_Module {
 
 		$models = $this->models;
 		foreach($models as $model_name) {
-			$this->apps->$model_name = $model;
+			//assign new model to existing model
+			$this->apps->$model_name->$new_model_name = $model;
+
+			//assign existing model to new model
 			$model->$model_name = $this->apps->$model_name;
 		}
 
 		$adapters = $this->adapters;
 		foreach($adapters as $adapter_name)
 			$model->$adapter_name = $this->apps->$adapter_name;
+
+		$this->models[] = $new_model_name;
+		$this->apps->$new_model_name = $model;
+		$this->controller->$new_model_name = $model;
 	}
 
 	public function model_preload($model) {
 		$model = str_replace('/', '_', $model);
 		if(!in_array($model, $this->models)) {
 			if(class_exists($model)) {
-				$this->apps->$model = new $model;
-				$this->controller->$model = $this->apps->$model;
-
-				$this->models[] = $model;
+				//it will go to model and add dependency
+				new $model;
 			}
 		}
 	}

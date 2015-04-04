@@ -37,7 +37,11 @@ abstract class PF_Entry extends PF_Model {
 			$columns = $self_defined_columns;
 
 		foreach($keys as $column)
-			if(!in_array($column, $columns)) return false;
+			if(!in_array($column, $columns) && $column != $this->pk()) {
+				// var_dump($column);
+				// exit;
+				return false;
+			}
 		return true;
 	}
 
@@ -55,15 +59,36 @@ abstract class PF_Entry extends PF_Model {
 		$sql = 'INSERT INTO ' . $this->table();
 
 		//COMPOSE COLUMNS
-		$sql .= '(`' . implode('`,`', $this->columns()) . '`' . ($this->created_at() ? ',`created_at`' : '') . ')';
+		$stmt_columns = '(';
+
+		//$sql .= '(`' . implode('`,`', $this->columns()) . '`' . ($this->created_at() ? ',`created_at`' : '') . ($this->updated_at() ? ',`updated_at`' : '') . ')';
 
 		//COMPOSE VALUES
-		$sql .= ' VALUES(' . substr(str_repeat('?, ', count($this->columns())), 0, -2) . ($this->created_at() ? ', NOW()' : '') . ')';
+		$stmt_vals = 'VALUES(';
+
+		//$sql .= ' VALUES(' . substr(str_repeat('?, ', count($this->columns())), 0, -2) . ($this->created_at() ? ', NOW()' : '') . ($this->updated_at() ? ', NOW()' : '') . ')';
 
 		//COMPOSE ARGS
 		$args = array();
-		foreach($this->columns() as $column)
-			$args[] = $vals[$column];
+		foreach($this->columns() as $column) {
+			if(isset($vals[$column])) {
+				$stmt_columns .= '`' . $this->table() . '`.`' . $column . '`, ';
+				$stmt_vals .= '?, ';
+				$args[] = $vals[$column];
+			}
+		}
+
+		if($this->created_at()) {
+			$stmt_columns .= '`' . $this->table() . '`.`created_at`, ';
+			$stmt_vals .= 'NOW(), ';
+		}
+
+		if($this->updated_at()) {
+			$stmt_columns .= '`' . $this->table() . '`.`updated_at`, ';
+			$stmt_vals .= 'NOW(), ';
+		}
+
+		$sql .= substr($stmt_columns, 0, -2) . ') ' . substr($stmt_vals, 0, -2) . ') ';
 
 		//EXECUTE STATEMENT
 		return $this->database->execute($sql, $args);
@@ -71,43 +96,55 @@ abstract class PF_Entry extends PF_Model {
 
 	protected function read($id = NULL, $self_defined_columns = array(), PF_Paginator $paginator = null) {
 		if(count($self_defined_columns) == 0)
-			$columns = $this->columns();
+			$txt_columns = ' `' . implode('`, `', $this->columns()) . '`';
 		else
-			$columns = $self_defined_columns;
+			$txt_columns = ' ' . implode(',', $self_defined_columns);
 
 		//SELECT STATEMENT
-		$sql = 'SELECT' . ($paginator !== NULL ? ' SQL_CALC_FOUND_ROWS' : '') . ' `' . implode('`, `', $columns) . '`, `' . $this->pk() . '`';
-		if($this->created_at())
-			$sql .= ', `created_at`';
-		if($this->updated_at())
-			$sql .= ', `updated_at`';
-		if($this->deleted_at())
-			$sql .= ', `deleted_at`';
+		$sql = 'SELECT' . ($paginator !== NULL ? ' SQL_CALC_FOUND_ROWS' : '') . $txt_columns;// . ', `' . $this->table() . '`.`' . $this->pk() . '`';
+		// if($this->created_at())
+		// 	$sql .= ', `' . $this->table() . '`.`created_at`';
+		// if($this->updated_at())
+		// 	$sql .= ', `' . $this->table() . '`.`updated_at`';
+		// if($this->deleted_at())
+		// 	$sql .= ', `deleted_at`';
 
 		$sql .= ' FROM ' . $this->table();
+		if($this->join !== NULL) $sql .= ' ' . $this->join;
 
-		if($id === NULL && $this->where === NULL)
-			return $this->database->execute($sql);
+		// if($id === NULL && $this->where === NULL) {
 
-		$sql .= ' WHERE';
+		// 	if($this->deleted_at()) $sql .= ' WHERE ' . $this->table() . '.deleted_at IS NULL';
+		// 	if($this->updated_at()) $sql .= ' ORDER BY updated_at DESC';
+		// 	return $this->database->execute($sql);
+		// }
+		
+		if($this->deleted_at())
+			$sql .= ' WHERE ' . $this->table() . '.deleted_at IS NULL';
+		else
+			$sql .= ' WHERE 1=1';
 
 		$args = array();
 
 		if($id !== NULL) {
-			$sql .= ' id=?';
+			$sql .= ' AND ' . $this->table() . '.id=?';
 			$args[] = $id;
 			if($this->where !== NULL) $sql .= ' AND';
 		}
 
 		if($this->where !== NULL) {
-			$sql .= ' ' . $this->where;
+			$sql .= ' AND ' . $this->where;
 			$args = array_merge($args, $this->where_args);
 		}
 
+		// if($this->updated_at()) $sql .= ' ORDER BY updated_at DESC';
+		if(method_exists($this, 'order_by'))
+			$sql .= ' ' . $this->order_by();
+			
 		if($paginator !== NULL) {
 			$query = $this->database->paginate($paginator->page(), $paginator->limit())->execute($sql, $args);
 			$paginator->set_total(
-					$this->database->execute('SELECT FOUND_ROWS() AS rows')->result()[0]->rows
+					$this->database->execute('SELECT FOUND_ROWS() AS rows')->first()->rows
 			);
 			return $query;
 		}
@@ -115,20 +152,32 @@ abstract class PF_Entry extends PF_Model {
 			return $this->database->execute($sql, $args);
 	}
 
-	protected function update($id = NULL, $vals) {
+	protected function update($id = NULL, $vals, $others = array()) {
 
 		//UPDATE STATEMENT
-		$sql = 'UPDATE ' . $this->table();
-
+		$sql = 'UPDATE ' . $this->table() . ' SET ';
 		//COMPOSE COLUMNS AND VALUES
-		$sql .= ' SET `' . substr(implode('`=?, `', $this->columns()), 0, -3) . '`=?';
-		if($this->updated_at())
-			$sql .= ' , `updated_at`=NOW() WHERE';
+		
 
 		//COMPOSE ARGS
 		$args = array();
-		foreach($this->columns as $column)
-			$args[] = $vals[$column];
+		foreach($this->columns() as $column)
+			if(isset($vals[$column])) {
+				$sql .= $this->table() . '.' . $column . '=?, ';
+				$args[] = $vals[$column];
+			}
+
+		foreach($others as $col => $val) {
+			$sql .= $this->table() . '.' . $col . '=?, ';
+			$args[] = $val;
+		}
+
+		$sql = substr($sql, 0, -2);
+
+		if($this->updated_at())
+			$sql .= ',' . $this->table() . '.`updated_at`=NOW()';
+
+		$sql .= ' WHERE';
 		
 		//COMPOSE WHERE
 		if($id !== NULL) {
@@ -142,6 +191,10 @@ abstract class PF_Entry extends PF_Model {
 			$args = array_merge($args, $this->where_args);
 		}
 
+		// var_dump($sql);
+		// var_dump($args);
+		// exit;
+
 		//EXECUTE STATEMENT
 		return $this->database->execute($sql, $args);
 	}
@@ -151,7 +204,7 @@ abstract class PF_Entry extends PF_Model {
 		//DELETE STATEMENT
 		if($this->deleted_at())
 			//SOFT DELETE IF deleted_at exists
-			$sql = 'UPDATE FROM ' . $this->table() . ' SET `deleted_at`=NOW() WHERE `' . $this->pk() . '`=?';
+			$sql = 'UPDATE ' . $this->table() . ' SET `deleted_at`=NOW() WHERE `' . $this->pk() . '`=?';
 		else
 			//HARD DELETE IF deleted_at not exists
 			$sql = 'DELETE FROM ' . $this->table() . ' WHERE `' . $this->pk() . '`=?';

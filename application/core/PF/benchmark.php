@@ -17,8 +17,11 @@ class PF_Benchmark {
 
 		$response = $PF->response;
 
-		$response->add_parser(function(&$body) {
-			$body = preg_replace('/\$runtime/', $this->etime - $this->stime, $body);
+		$etime = $this->etime;
+		$stime = $this->stime;
+
+		$response->add_parser(function(&$body) use($etime, $stime) {
+			$body = preg_replace('/\$runtime/', $etime - $stime, $body);
 		});
 	}
 

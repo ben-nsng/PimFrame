@@ -76,7 +76,8 @@ class PF_Route {
 			global $apps;
 			$config = $apps->config;
 			//otherwise, use default controller
-			$controller = $config->get('config')['controller']; //default controller
+			$config = $config->get('config');
+			$controller = $config['controller']; //default controller
 
 			if(class_exists($controller)) {
 				$this->controller = ucfirst($controller);
@@ -114,7 +115,7 @@ class PF_Route {
 
 			if(method_exists($controller, 'pre_routing')) $success = $controller->pre_routing();
 
-			if($success) $result = call_user_func_array(array($controller, $method), $args);
+			if($success !== false) $result = call_user_func_array(array($controller, $method), $args);
 
 			if(method_exists($controller, 'post_routing')) $controller->post_routing();
 
@@ -139,7 +140,7 @@ class PF_Route {
 	private function check_route($controller, $method, $elems, $i) {
 		if($method_name = ($this->check_method_exists($controller, $method))) {
 			$this->method = $method_name;
-			$this->args = array_slice($elems, $i++);
+			$this->args = array_slice($elems, ++$i);
 			return true;
 		}
 		else if($method_name = ($this->check_method_exists($this->controller, 'index'))) {
