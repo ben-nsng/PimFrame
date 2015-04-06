@@ -96,6 +96,8 @@ class PF_Response {
 		if($this->is_post) return $this->html_post;
 		//call this line when header redirect
 		if($this->is_redirect) return "";
+		//call this line when error 404
+		if($this->is_error_404) return "";
 		
 		//otherwise, run parser for the body
 		foreach($this->parsers as $parser)
@@ -107,6 +109,11 @@ class PF_Response {
 
 	public function unload() {
 		ob_end_flush();
+		if($this->is_error_404) {
+			header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
+			echo "<h1>404 Not Found</h1>";
+			echo "The page that you have requested could not be found.";
+		}
 	}
 
 	private function output($buffer) {

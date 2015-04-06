@@ -121,8 +121,11 @@ class PF_Route {
 
 			return $result;
 		}
-		else
-			return $this->response->error_404();
+		else {
+			global $apps;
+			$response = $apps->response;
+			return $response->error_404();
+		}
 	}
 
 	public function get_controller() {
@@ -146,6 +149,7 @@ class PF_Route {
 		else if($method_name = ($this->check_method_exists($this->controller, 'index'))) {
 			$this->method = $method_name;
 			$this->args = array_slice($elems, $i);
+			foreach($this->args as $arg) if($arg != '') return false;
 			return true;
 		}
 		return false;
