@@ -49,9 +49,12 @@ class PF_Response {
 	//redirect with get or post request
 	public function redirect($page, $posts = array()) {
 		if($this->is_redirect) return;
+		global $host_name;
 
-		if(count($posts) == 0)
+		if(count($posts) == 0) {
+			if(substr($page, 0, 1) == '/') $page = $host_name . substr($page, 1);
 			header('location: ' . $page);
+		}
 		else {
 			$this->is_post = true;
 			$this->html_post = '<form name="frm" action="' . $page . '" method="POST">';

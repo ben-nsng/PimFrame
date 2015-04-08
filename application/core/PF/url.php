@@ -5,7 +5,7 @@ class PF_Url {
 	public function __construct() {
 	}
 
-	/*
+	
 	public function encode($url) {
 		return
 			str_replace('+', '-', 
@@ -33,7 +33,7 @@ class PF_Url {
 				)
 			);
 	}
-	*/
+	
 }
 
 ?>

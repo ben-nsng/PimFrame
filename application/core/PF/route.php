@@ -24,15 +24,14 @@ class PF_Route {
 				break;
 		}
 
-		if($controller != '') {
+
+		while($controller != '') {
 			//matched controller inside folder
-			//var_dump($controller . $elems[$i]);
+			// var_dump($controller . $elems[$i]);
 			if(isset($elems[$i]) && class_exists($controller . $elems[$i])) {
-
 				$this->controller = $controller . ucfirst($elems[$i++]);
-
 				if($this->check_route($this->controller, isset($elems[$i]) ? $elems[$i] : 'index', $elems, $i)) return;
-
+				$i -= 2;
 				/*
 				if(isset($elems[$i]) && $method_name = ($this->check_method_exists($this->controller, $elems[$i]))) {
 					$this->method = $method_name;
@@ -47,6 +46,15 @@ class PF_Route {
 				*/
 
 			}
+			else
+				$i -= 1;
+
+			//this will try to search through all the folders
+			if(($pos = strrpos($controller, '_', -2 )) !== false) {
+				$controller = substr($controller, 0, $pos) . '_';
+			}
+			else
+				$controller = '';
 		}
 
 		//no matched controller inside folder or no matched method inside folder
@@ -114,7 +122,7 @@ class PF_Route {
 			$result = null;
 
 			if(method_exists($controller, 'pre_routing')) $success = $controller->pre_routing();
-
+			
 			if($success !== false) $result = call_user_func_array(array($controller, $method), $args);
 
 			if(method_exists($controller, 'post_routing')) $controller->post_routing();

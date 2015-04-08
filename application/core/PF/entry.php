@@ -119,28 +119,28 @@ abstract class PF_Entry extends PF_Model {
 		// 	return $this->database->execute($sql);
 		// }
 		
-		if($this->deleted_at())
-			$sql .= ' WHERE ' . $this->table() . '.deleted_at IS NULL';
-		else
-			$sql .= ' WHERE 1=1';
+		$where_state = '';
+
+		if($this->deleted_at()) {
+			$this->where_append($sql, '', $this->table() . '.deleted_at IS NULL', $where_state);
+		}
 
 		$args = array();
 
 		if($id !== NULL) {
-			$sql .= ' AND ' . $this->table() . '.id=?';
+			$this->where_append($sql, 'AND', $this->table() . '.id=?', $where_state);
 			$args[] = $id;
-			if($this->where !== NULL) $sql .= ' AND';
 		}
 
 		if($this->where !== NULL) {
-			$sql .= ' AND ' . $this->where;
+			$this->where_append($sql, 'AND', $this->where, $where_state);
 			$args = array_merge($args, $this->where_args);
 		}
 
 		// if($this->updated_at()) $sql .= ' ORDER BY updated_at DESC';
 		if(method_exists($this, 'order_by'))
 			$sql .= ' ' . $this->order_by();
-			
+
 		if($paginator !== NULL) {
 			$query = $this->database->paginate($paginator->page(), $paginator->limit())->execute($sql, $args);
 			$paginator->set_total(
@@ -166,34 +166,33 @@ abstract class PF_Entry extends PF_Model {
 				$sql .= $this->table() . '.' . $column . '=?, ';
 				$args[] = $vals[$column];
 			}
+			else if(isset($others[$column])) {
+				$sql .= $this->table() . '.' . $column . '=?, ';
+				$args[] = $others[$column];
+			}
 
-		foreach($others as $col => $val) {
-			$sql .= $this->table() . '.' . $col . '=?, ';
-			$args[] = $val;
-		}
+		// foreach($others as $col => $val) {
+		// 	$sql .= $this->table() . '.' . $col . '=?, ';
+		// 	$args[] = $val;
+		// }
 
 		$sql = substr($sql, 0, -2);
 
 		if($this->updated_at())
 			$sql .= ',' . $this->table() . '.`updated_at`=NOW()';
 
-		$sql .= ' WHERE';
-		
 		//COMPOSE WHERE
+		$where_state = '';
+
 		if($id !== NULL) {
-			$sql .= ' id=?';
+			$this->where_append($sql, 'AND', 'id=?', $where_state);
 			$args[] = $id;
-			if($this->where !== NULL) $sql .= ' AND';
 		}
 
 		if($this->where !== NULL) {
-			$sql .= ' ' . $this->where;
+			$this->where_append($sql, 'AND', $this->where, $where_state);
 			$args = array_merge($args, $this->where_args);
 		}
-
-		// var_dump($sql);
-		// var_dump($args);
-		// exit;
 
 		//EXECUTE STATEMENT
 		return $this->database->execute($sql, $args);
@@ -211,6 +210,17 @@ abstract class PF_Entry extends PF_Model {
 
 		//EXECUTE STATEMENT
 		return $this->database->execute($sql, $id);
+	}
+
+	private function where_append(&$sql, $cont, $where, &$state) {
+		if($state == 'cont') {
+			$sql .= ' ' . $cont . ' ' . $where;
+		}
+
+		if($state == '') {
+			$sql .= ' WHERE ' . $where;
+			$state = 'cont';
+		}
 	}
 
 
