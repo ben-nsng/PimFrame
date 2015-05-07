@@ -231,14 +231,19 @@ class PF_Database_Statement {
 		return array();
 	}
 
-	public function first() {
+	public function first($col = '') {
 		if($this->error) return null;
 
 		if($this->result != null) return $this->result;
 		if($this->stmt != null) {
 			$this->result = $this->stmt->fetchAll(PDO::FETCH_OBJ);
 
-			if($this->num_rows() > 0) return $this->result[0];
+			if($this->num_rows() > 0) {
+				if($col !== '')
+					return $this->result[0]->$col;
+				else
+					return $this->result[0];
+			}
 			else return null;
 		}
 		return null;

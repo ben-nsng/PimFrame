@@ -28,6 +28,7 @@ class PF_Response {
 			if(ENVIRONMENT == 'development') {
 				if(isset($apps->debug)) {
 					$debug = $apps->debug;
+					$body = $body . '$debug';
 					$body = preg_replace('/\$debug/', $debug->get_message(), $body);
 				}
 			}

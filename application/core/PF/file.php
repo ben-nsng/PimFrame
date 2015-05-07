@@ -11,6 +11,22 @@ class PF_File {
 	}
 
 	public function uploads($name) {
+		$files = array();
+
+		$cnt = count($_FILES[$name]['name']);
+		for($i = 0; $i < $cnt; $i++) {
+			$files[] = new PF_File_Handle($name, 
+				array(
+					'name' => $_FILES[$name]['name'][$i],
+					'type' => $_FILES[$name]['type'][$i],
+					'tmp_name' => $_FILES[$name]['tmp_name'][$i],
+					'error' => $_FILES[$name]['error'][$i],
+					'size' => $_FILES[$name]['size'][$i]
+				)
+			);
+		}
+
+		return $files;
 	}
 
 }
@@ -21,8 +37,14 @@ class PF_File_Handle {
 	private $handle = null;
 	private $upload_path = './application/uploads/';
 
-	public function __construct($name, $multiple = false) {
+	public function __construct($name, $info = null) {
 		$this->name = $name;
+
+		if($info !== null) {
+			$this->handle = $info;
+			return;
+		}
+		
 		if(isset($_FILES[$this->name])) {
 			$this->handle = array(
 				'name' => $_FILES[$this->name]['name'],

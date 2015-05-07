@@ -34,7 +34,7 @@ abstract class PF_Entry extends PF_Model {
 		if(count($self_defined_columns) == 0)
 			$columns = $this->columns();
 		else
-			$columns = $self_defined_columns;
+			$columns = array_merge($this->columns(), $self_defined_columns);
 
 		foreach($keys as $column)
 			if(!in_array($column, $columns) && $column != $this->pk()) {
